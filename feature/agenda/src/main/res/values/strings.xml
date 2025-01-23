@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="save_reminder">Save Reminder</string>
+    <string name="are_you_sure_you_want_to_save_this_reminder">Are you sure you want to save this reminder?</string>
+    <string name="saving_reminder">Saving Reminder...</string>
+    <string name="reminder_saved">Reminder Saved</string>
+    <string name="title_is_required">Title is required</string>
+    <string name="date_is_required">Date is required</string>
+    <string name="time_is_required">Time is required</string>
+    <string name="close_create_reminder_sheet">Close create reminder sheet</string>
+    <string name="reminder_title">Reminder title</string>
+    <string name="save">Save</string>
+    <string name="edit">Edit</string>
+    <string name="edit_reminder">Edit Reminder</string>
+    <string name="are_you_sure_you_want_to_edit_this_reminder">Are you sure you want to edit this reminder?</string>
+    <string name="saving">Saving...</string>
+    <string name="cancel">Cancel</string>
+    <string name="success">Success</string>
+    <string name="ok">Ok</string>
+    <string name="reminder_description">Catatan</string>
+    <string name="dura_is_required">Duration time is required</string>
+    <string name="range_is_required">Range is required</string>
+    <string name="agenda_notes">Notes</string>
+    <string name="event_description">Notes</string>
+    <string name="agenda_title">Agenda title</string>
+    <string name="are_you_sure_you_want_to_edit_this_agenda">Are you sure you want to edit this agenda</string>
+    <string name="are_you_sure_you_want_to_save_this_agenda">Are you sure you want to edit this agenda</string>
+    <string name="notification_scheduling_failed">Failed</string>
+</resources>
