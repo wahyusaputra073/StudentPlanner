@@ -100,7 +100,8 @@ private fun SubjectPickerPreview() {
                     color = Color.Red,
                     room = "Room 1",
                     description = "Math description",
-                    lecturerId = 1
+                    lecturerId = 1,
+                    secondaryLecturerId = 1,
                 )
             )
         )

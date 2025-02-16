@@ -1,7 +1,7 @@
 package com.wahyusembiring.data.repository
 
 import com.wahyusembiring.data.model.HomeworkWithSubject
-import com.wahyusembiring.data.model.entity.Homework
+import com.wahyusembiring.data.model.entity.Task
 import kotlinx.coroutines.flow.Flow
 
 // Mendeklarasikan interface HomeworkRepository yang berfungsi untuk mengelola data tugas rumah (homework)
@@ -18,12 +18,12 @@ interface HomeworkRepository {
     fun getHomeworkById(id: Int): Flow<HomeworkWithSubject?>
 
     // Fungsi suspend untuk menyimpan data tugas rumah dan mengembalikan ID tugas yang disimpan
-    suspend fun saveHomework(homework: Homework): Long
+    suspend fun saveHomework(homework: Task): Long
 
     // Fungsi suspend untuk memperbarui data tugas rumah
-    suspend fun updateHomework(homework: Homework)
+    suspend fun updateHomework(homework: Task)
 
     // Fungsi suspend untuk menghapus data tugas rumah
-    suspend fun deleteHomework(homework: Homework)
+    suspend fun deleteHomework(homework: Task)
 
 }

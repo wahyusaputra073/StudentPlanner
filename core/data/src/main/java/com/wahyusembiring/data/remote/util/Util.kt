@@ -4,9 +4,9 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.wahyusembiring.data.local.Converter
 import com.wahyusembiring.data.model.ThesisWithTask
 import com.wahyusembiring.data.model.entity.Exam
-import com.wahyusembiring.data.model.entity.Homework
+import com.wahyusembiring.data.model.entity.TaskThesis
 import com.wahyusembiring.data.model.entity.Lecturer
-import com.wahyusembiring.data.model.entity.Reminder
+import com.wahyusembiring.data.model.entity.Agenda
 import com.wahyusembiring.data.model.entity.Subject
 import com.wahyusembiring.data.model.entity.Task
 import com.wahyusembiring.data.model.entity.Thesis
@@ -52,7 +52,7 @@ fun DocumentSnapshot.toExam(converter: Converter): Exam {  // Fungsi extension u
     )
 }
 
-fun Homework.toHashMap(converter: Converter): HashMap<String, *> {  // Fungsi extension untuk mengonversi objek Homework menjadi HashMap.
+fun Task.toHashMap(converter: Converter): HashMap<String, *> {  // Fungsi extension untuk mengonversi objek Homework menjadi HashMap.
     return hashMapOf(  // Mengembalikan HashMap dengan pasangan kunci dan nilai yang sesuai.
         "title" to title,  // Menambahkan pasangan kunci "title" dan nilai properti title.
         "description" to description,  // Menambahkan pasangan kunci "description" dan nilai properti description.
@@ -66,8 +66,8 @@ fun Homework.toHashMap(converter: Converter): HashMap<String, *> {  // Fungsi ex
 }
 
 
-fun DocumentSnapshot.toHomework(converter: Converter): Homework {  // Fungsi extension untuk mengonversi DocumentSnapshot menjadi objek Homework.
-    return Homework(  // Mengembalikan objek Homework yang diinisialisasi dengan data dari DocumentSnapshot.
+fun DocumentSnapshot.toHomework(converter: Converter): Task {  // Fungsi extension untuk mengonversi DocumentSnapshot menjadi objek Homework.
+    return Task(  // Mengembalikan objek Homework yang diinisialisasi dengan data dari DocumentSnapshot.
         id = id.toInt(),  // Mengonversi id (String) menjadi Int dan mengisinya ke properti id.
         title = get("title", String::class.java)!!,  // Mengambil nilai "title" dari snapshot dan memastikan bahwa nilainya tidak null.
         description = get("description", String::class.java) ?: "",  // Mengambil "description", jika null set ke string kosong.
@@ -89,7 +89,7 @@ fun DocumentSnapshot.toHomework(converter: Converter): Homework {  // Fungsi ext
     )
 }
 
-fun Reminder.toHashMap(converter: Converter): HashMap<String, *> {  // Fungsi extension untuk mengonversi objek Reminder menjadi HashMap.
+fun Agenda.toHashMap(converter: Converter): HashMap<String, *> {  // Fungsi extension untuk mengonversi objek Reminder menjadi HashMap.
     return hashMapOf(  // Mengembalikan HashMap dengan pasangan kunci dan nilai yang sesuai.
         "title" to title,  // Menambahkan pasangan kunci "title" dan nilai properti title.
         "description" to description,  // Menambahkan pasangan kunci "description" dan nilai properti description.
@@ -102,8 +102,8 @@ fun Reminder.toHashMap(converter: Converter): HashMap<String, *> {  // Fungsi ex
     )
 }
 
-fun DocumentSnapshot.toReminder(converter: Converter): Reminder {  // Fungsi extension untuk mengonversi DocumentSnapshot menjadi objek Reminder.
-    return Reminder(  // Mengembalikan objek Reminder yang diinisialisasi dengan data dari DocumentSnapshot.
+fun DocumentSnapshot.toReminder(converter: Converter): Agenda {  // Fungsi extension untuk mengonversi DocumentSnapshot menjadi objek Reminder.
+    return Agenda(  // Mengembalikan objek Reminder yang diinisialisasi dengan data dari DocumentSnapshot.
         id = id.toInt(),  // Mengonversi id (String) menjadi Int dan mengisinya ke properti id.
         title = get("title", String::class.java)!!,  // Mengambil nilai "title" dari snapshot dan memastikan bahwa nilainya tidak null.
         description = get("description", String::class.java) ?: "",  // Mengambil "description", jika null set ke string kosong.
@@ -132,6 +132,7 @@ fun Subject.toHashMap(converter: Converter): HashMap<String, *> {  // Fungsi ext
         "color" to converter.colorToInt(color),  // Mengonversi color (Color) menjadi Int dan menambahkannya ke HashMap.
         "room" to room,  // Menambahkan pasangan kunci "room" dan nilai properti room.
         "lecturer_id" to lecturerId,  // Menambahkan pasangan kunci "lecturer_id" dan nilai properti lecturerId.
+        "secondary_lecturer_id" to secondaryLecturerId,
         "description" to description  // Menambahkan pasangan kunci "description" dan nilai properti description.
     )
 }
@@ -144,6 +145,7 @@ fun DocumentSnapshot.toSubject(converter: Converter): Subject {  // Fungsi exten
             .let { converter.intToColor(it!!) },  // Mengonversi Int ke Color menggunakan fungsi intToColor milik converter.
         room = get("room", String::class.java)!!,  // Mengambil nilai "room" dari snapshot dan memastikan bahwa nilainya tidak null.
         lecturerId = get("lecturer_id", Int::class.java)!!,  // Mengambil nilai "lecturer_id" sebagai Int dari snapshot.
+        secondaryLecturerId = get("secondary_lecturer_id", Int::class.java)!!,
         description = get("description", String::class.java) ?: ""  // Mengambil nilai "description", jika null set ke string kosong.
     )
 }
@@ -184,7 +186,7 @@ fun ThesisWithTask.toHashMap(converter: Converter): HashMap<String, *> {  // Fun
     return hashMapOf(  // Mengembalikan HashMap
         "title" to thesis.title,  // Menyimpan judul tesis
         "articles" to converter.listOfFileToJsonString(thesis.articles),  // Mengonversi daftar artikel ke string JSON
-        "tasks" to tasks.map {  // Mengonversi daftar tugas ke format map
+        "tasks" to taskTheses.map {  // Mengonversi daftar tugas ke format map
             mapOf(  // Setiap tugas diubah menjadi map
                 "task_id" to it.id,  // Menyimpan id tugas
                 "thesis_id" to it.thesisId,  // Menyimpan id tesis
@@ -205,8 +207,8 @@ fun DocumentSnapshot.toThesisWithTask(converter: Converter): ThesisWithTask {  /
         articles = get("articles", String::class.java)  // Mengambil artikel sebagai String
             .let { converter.jsonStringToListOfFile(it!!) }  // Mengonversi string JSON ke List<File>
     )
-    val tasks = (get("tasks") as List<Map<String, Any>>).map { taskDto ->  // Mengambil daftar tugas dan mengonversinya
-        Task(  // Membuat objek Task untuk setiap tugas
+    val taskTheses = (get("tasks") as List<Map<String, Any>>).map { taskDto ->  // Mengambil daftar tugas dan mengonversinya
+        TaskThesis(  // Membuat objek Task untuk setiap tugas
             id = (taskDto["task_id"] as Long).toInt(),  // Mengonversi task_id ke Int
             thesisId = (taskDto["thesis_id"] as Long).toInt(),  // Mengonversi thesis_id ke Int
             name = taskDto["name"] as String,  // Mengambil nama tugas sebagai String
@@ -214,5 +216,5 @@ fun DocumentSnapshot.toThesisWithTask(converter: Converter): ThesisWithTask {  /
             dueDate = converter.longToDate(taskDto["due_date"] as Long)  // Mengonversi due_date ke Date
         )
     }
-    return ThesisWithTask(thesis, tasks)  // Mengembalikan objek ThesisWithTask dengan tesis dan daftar tugas
+    return ThesisWithTask(thesis, taskTheses)  // Mengembalikan objek ThesisWithTask dengan tesis dan daftar tugas
 }

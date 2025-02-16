@@ -83,4 +83,11 @@ sealed class AddExamScreenUIEvent {
 
     // Event ketika dialog error dibatalkan
     data object OnErrorDialogDismiss : AddExamScreenUIEvent()
+
+
+    data class OnEmailAddressChanged(val email: String) : AddExamScreenUIEvent()
+
+    data object OnSendEmailButtonClicked : AddExamScreenUIEvent()
+
+    data object OnDismissEmailSentDialog : AddExamScreenUIEvent()
 }

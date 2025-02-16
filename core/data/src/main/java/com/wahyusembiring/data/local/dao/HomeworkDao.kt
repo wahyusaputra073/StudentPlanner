@@ -7,25 +7,24 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
-import androidx.room.Upsert
 import com.wahyusembiring.data.model.HomeworkWithSubject
-import com.wahyusembiring.data.model.entity.Homework
+import com.wahyusembiring.data.model.entity.Task
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface HomeworkDao {
 
     @Query("SELECT * FROM homework")
-    fun getAllHomework(): Flow<List<Homework>>
+    fun getAllHomework(): Flow<List<Task>>
 
-    @Insert(entity = Homework::class)
-    suspend fun insertHomework(homework: Homework): Long
+    @Insert(entity = Task::class)
+    suspend fun insertHomework(homework: Task): Long
 
-    @Insert(entity = Homework::class, onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertHomework(homeworks: List<Homework>): List<Long>
+    @Insert(entity = Task::class, onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertHomework(homeworks: List<Task>): List<Long>
 
-    @Update(entity = Homework::class)
-    suspend fun updateHomework(homework: Homework)
+    @Update(entity = Task::class)
+    suspend fun updateHomework(homework: Task)
 
     @Transaction
     @Query(
@@ -49,7 +48,7 @@ interface HomeworkDao {
     @Query("SELECT * FROM homework WHERE id = :id")
     fun getHomeworkById(id: Int): Flow<HomeworkWithSubject?>
 
-    @Delete(entity = Homework::class)
-    suspend fun deleteHomework(homework: Homework)
+    @Delete(entity = Task::class)
+    suspend fun deleteHomework(homework: Task)
 
 }

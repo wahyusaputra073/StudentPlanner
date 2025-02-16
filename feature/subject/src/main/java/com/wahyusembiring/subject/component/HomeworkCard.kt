@@ -14,8 +14,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.wahyusembiring.data.model.entity.Homework
+import com.wahyusembiring.data.model.entity.TaskThesis
 import com.wahyusembiring.data.model.entity.Subject
+import com.wahyusembiring.data.model.entity.Task
 import com.wahyusembiring.datetime.Moment
 import com.wahyusembiring.datetime.formatter.FormattingStyle
 import com.wahyusembiring.subject.R
@@ -25,7 +26,7 @@ import java.util.Date
 @Composable
 fun HomeworkCard(
     subject: Subject,
-    homework: Homework,
+    homework: Task,
     date: Date,
     onClick: () -> Unit,
 ) {

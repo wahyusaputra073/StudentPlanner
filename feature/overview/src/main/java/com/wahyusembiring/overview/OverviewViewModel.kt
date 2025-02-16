@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.wahyusembiring.common.util.launch
 import com.wahyusembiring.data.model.ExamWithSubject
 import com.wahyusembiring.data.model.HomeworkWithSubject
-import com.wahyusembiring.data.model.entity.Reminder
+import com.wahyusembiring.data.model.entity.Agenda
 import com.wahyusembiring.data.repository.EventRepository
 import com.wahyusembiring.datetime.Moment
 import com.wahyusembiring.datetime.formatter.FormattingStyle
@@ -110,7 +110,7 @@ class OverviewViewModel @Inject constructor( // ViewModel untuk layar Overview, 
                     )
                 )
             }
-            is Reminder -> {
+            is Agenda -> {
                 eventRepository.updateReminder(event.copy(completed = completed))
             }
         }
@@ -134,7 +134,7 @@ class OverviewViewModel @Inject constructor( // ViewModel untuk layar Overview, 
             is ExamWithSubject -> {
                 eventRepository.deleteExam(event.exam)
             }
-            is Reminder -> {
+            is Agenda -> {
                 eventRepository.deleteReminder(event)
             }
         }

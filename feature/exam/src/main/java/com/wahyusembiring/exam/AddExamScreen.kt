@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -20,6 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.navigation.NavHostController
 import com.wahyusembiring.common.navigation.Screen
 import com.wahyusembiring.data.model.entity.ExamCategory
@@ -169,6 +173,20 @@ private fun ExamScreenUI(  // Fungsi Composable untuk tampilan UI layar ujian
                         onUIEvent(AddExamScreenUIEvent.OnExamDescriptionChanged(it))  // Mengubah deskripsi
                     },
                 )
+
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = MaterialTheme.spacing.Small),
+                    onClick = { onUIEvent(AddExamScreenUIEvent.OnSendEmailButtonClicked) }
+                ) {
+                    Icon(
+                        painter = painterResource(id = com.wahyusembiring.ui.R.drawable.ic_title),
+                        contentDescription = "Send Email",
+                        modifier = Modifier.padding(end = MaterialTheme.spacing.Small)
+                    )
+                    Text(text = "Send via Email")
+                }
 
             }
         }

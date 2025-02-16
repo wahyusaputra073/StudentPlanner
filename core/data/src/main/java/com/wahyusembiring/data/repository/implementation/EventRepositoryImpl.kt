@@ -6,8 +6,8 @@ import com.wahyusembiring.data.local.dao.ReminderDao
 import com.wahyusembiring.data.model.ExamWithSubject
 import com.wahyusembiring.data.model.HomeworkWithSubject
 import com.wahyusembiring.data.model.entity.Exam
-import com.wahyusembiring.data.model.entity.Homework
-import com.wahyusembiring.data.model.entity.Reminder
+import com.wahyusembiring.data.model.entity.Task
+import com.wahyusembiring.data.model.entity.Agenda
 import com.wahyusembiring.data.repository.EventRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -48,11 +48,11 @@ class EventRepositoryImpl @Inject constructor(  // Kelas EventRepositoryImpl yan
         return homeworkDao.getHomeworkById(id)  // Mengambil data homework dengan ID tertentu dari DAO
     }
 
-    override suspend fun saveHomework(homework: Homework): Long {  // Fungsi untuk menyimpan data homework
+    override suspend fun saveHomework(homework: Task): Long {  // Fungsi untuk menyimpan data homework
         return homeworkDao.insertHomework(homework)  // Menyimpan homework ke database dan mengembalikan ID yang dihasilkan
     }
 
-    override suspend fun updateHomework(homework: Homework) {  // Fungsi untuk memperbarui data homework
+    override suspend fun updateHomework(homework: Task) {  // Fungsi untuk memperbarui data homework
         homeworkDao.updateHomework(homework)  // Memperbarui data homework di database
     }
 
@@ -68,7 +68,7 @@ class EventRepositoryImpl @Inject constructor(  // Kelas EventRepositoryImpl yan
         examDao.updateExam(exam)  // Memperbarui exam di database
     }
 
-    override fun getAllReminder(minDate: Long?, maxDate: Long?): Flow<List<Reminder>> {  // Fungsi untuk mengambil semua reminder, bisa memfilter berdasarkan rentang tanggal
+    override fun getAllReminder(minDate: Long?, maxDate: Long?): Flow<List<Agenda>> {  // Fungsi untuk mengambil semua reminder, bisa memfilter berdasarkan rentang tanggal
         return if (minDate == null || maxDate == null) {  // Jika rentang tanggal tidak diberikan
             reminderDao.getAllReminder()  // Ambil semua reminder tanpa filter
         } else {
@@ -77,11 +77,11 @@ class EventRepositoryImpl @Inject constructor(  // Kelas EventRepositoryImpl yan
     }
 
 
-    override suspend fun saveReminder(reminder: Reminder): Long {  // Fungsi untuk menyimpan reminder
+    override suspend fun saveReminder(reminder: Agenda): Long {  // Fungsi untuk menyimpan reminder
         return reminderDao.insertReminder(reminder)  // Menyimpan reminder ke database dan mengembalikan ID yang dihasilkan
     }
 
-    override suspend fun updateReminder(reminder: Reminder) {  // Fungsi untuk memperbarui reminder
+    override suspend fun updateReminder(reminder: Agenda) {  // Fungsi untuk memperbarui reminder
         reminderDao.updateReminder(reminder)  // Memperbarui reminder di database
     }
 
@@ -89,11 +89,11 @@ class EventRepositoryImpl @Inject constructor(  // Kelas EventRepositoryImpl yan
         examDao.deleteExam(exam)  // Menghapus exam dari database
     }
 
-    override suspend fun deleteHomework(homework: Homework) {  // Fungsi untuk menghapus homework
+    override suspend fun deleteHomework(homework: Task) {  // Fungsi untuk menghapus homework
         homeworkDao.deleteHomework(homework)  // Menghapus homework dari database
     }
 
-    override suspend fun deleteReminder(reminder: Reminder) {  // Fungsi untuk menghapus reminder
+    override suspend fun deleteReminder(reminder: Agenda) {  // Fungsi untuk menghapus reminder
         reminderDao.deleteReminder(reminder)  // Menghapus reminder dari database
     }
 
@@ -101,7 +101,7 @@ class EventRepositoryImpl @Inject constructor(  // Kelas EventRepositoryImpl yan
         return examDao.getExamById(id)  // Mengambil exam berdasarkan ID dari database
     }
 
-    override fun getReminderById(id: Int): Flow<Reminder?> {  // Fungsi untuk mengambil reminder berdasarkan ID
+    override fun getReminderById(id: Int): Flow<Agenda?> {  // Fungsi untuk mengambil reminder berdasarkan ID
         return reminderDao.getReminderById(id)  // Mengambil reminder berdasarkan ID dari database
     }
 }

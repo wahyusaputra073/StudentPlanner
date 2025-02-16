@@ -37,7 +37,6 @@ fun TimePickerOptionAgenda(
 ) {
     // Options for reminder time based on start time from SpanTime
     val timeOptions = listOf(
-        "At start time" to spanTime.startTime,
         "5 minutes before start" to Time(
             hour = spanTime.startTime.hour,
             minute = spanTime.startTime.minute - 5
@@ -56,6 +55,10 @@ fun TimePickerOptionAgenda(
         ),
         "1 hour before start" to Time(
             hour = spanTime.startTime.hour - 1,
+            minute = spanTime.startTime.minute
+        ),
+        "2 hour before start" to Time(
+            hour = spanTime.startTime.hour - 2,
             minute = spanTime.startTime.minute
         )
     )

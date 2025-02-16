@@ -46,20 +46,25 @@ fun AddReminderButton(
         },
         headlineContent = {
             if (time != null) {
-                // Menampilkan waktu pengingat jika ada
+                val reminderText = if (time.minute < 0) {
+                    "${stringResource(R.string.remind_me)} ${-time.minute} minutes before"
+                }
+
+
+                else {
+                    "${stringResource(R.string.remind_me)} ${-time.hour} hours before"
+                }
+
                 Column {
-                    Text(
-                        text = "${stringResource(R.string.remind_me_at)} ${time.hour.withZeroPadding()}:${time.minute.withZeroPadding()}"
-                        // Menampilkan waktu dengan format jam dan menit
-                    )
+                    Text(text = reminderText)
                 }
             } else {
-                // Menampilkan teks jika waktu null
                 Text(
-                    color = TextFieldDefaults.colors().disabledTextColor, // Warna teks disabled
-                    text = stringResource(id = R.string.add_reminder),    // Teks "Tambah Pengingat"
+                    color = TextFieldDefaults.colors().disabledTextColor,
+                    text = stringResource(id = R.string.add_reminder),
                 )
             }
         }
+
     )
 }

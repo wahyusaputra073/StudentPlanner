@@ -44,7 +44,7 @@ import com.wahyusembiring.data.model.DeadlineTime
 import com.wahyusembiring.data.model.ExamWithSubject
 import com.wahyusembiring.data.model.HomeworkWithSubject
 import com.wahyusembiring.data.model.SpanTime
-import com.wahyusembiring.data.model.entity.Reminder
+import com.wahyusembiring.data.model.entity.Agenda
 import com.wahyusembiring.ui.R
 import com.wahyusembiring.ui.theme.spacing
 import com.wahyusembiring.ui.util.UIText
@@ -163,7 +163,7 @@ private fun Body(
                     )
                 }
 
-                is Reminder -> { // Jika event adalah Reminder
+                is Agenda -> { // Jika event adalah Reminder
                     BodyEventList(
                         onClick = { onClick(event) },
                         onDeletedClick = { onDeleteEventClick(event) },

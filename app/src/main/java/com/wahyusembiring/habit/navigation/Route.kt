@@ -17,7 +17,7 @@ import com.wahyusembiring.exam.ExamScreen
 import com.wahyusembiring.exam.AddExamScreenViewModel
 import com.wahyusembiring.subject.screen.main.SubjectScreen
 import com.wahyusembiring.subject.screen.main.SubjectScreenViewModel
-import com.wahyusembiring.task.CreateHomeworkScreen
+import com.wahyusembiring.task.AddTaskScreen
 import com.wahyusembiring.overview.OverviewScreen
 import com.wahyusembiring.task.AddTaskScreenViewModel
 import com.wahyusembiring.lecturer.screen.addlecture.AddLectureScreen
@@ -60,7 +60,7 @@ fun NavGraphBuilder.createHomeworkScreen(
         )
 
         // Menampilkan layar CreateHomeworkScreen dengan ViewModel dan NavController
-        CreateHomeworkScreen(
+        AddTaskScreen(
             viewModel = viewModel,
             navController = navController
         )

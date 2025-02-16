@@ -29,7 +29,7 @@ import androidx.compose.ui.res.stringResource
 import com.wahyusembiring.data.model.SubjectWithExamAndHomework
 import com.wahyusembiring.data.model.entity.Exam
 import com.wahyusembiring.data.model.entity.ExamCategory
-import com.wahyusembiring.data.model.entity.Homework
+import com.wahyusembiring.data.model.entity.Task
 import com.wahyusembiring.subject.R
 import com.wahyusembiring.ui.component.dropdown.Dropdown
 import com.wahyusembiring.ui.theme.spacing
@@ -192,7 +192,7 @@ private fun ExamListItem(
 private fun HomeworkListItem(
     selected: Boolean,
     color: Color,
-    homework: Homework,
+    homework: Task,
     onRadioButtonClick: () -> Unit,
     onClick: () -> Unit = {}
 ) {

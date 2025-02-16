@@ -31,4 +31,11 @@
     <string name="no_graded_assignment_for_this_subject">No graded assignment for this subject</string>
     <string name="new_subject">New subject</string>
     <string name="no_any_assignment_for_this_subject">No any assignment for this subject</string>
+    <string name="add_another_lecturer">Add another lecturer</string>
+    <string name="remove_lecturer">Remove lecturer</string>
+    <string name="select_lecturer">select lecturer</string>
+    <string name="secondary_lecturer">second lecturer</string>
+    <string name="primary_lecturer">primary lecturer</string>
+    <string name="select_secondary_lecturer">Second lecturer</string>
+    <string name="select_primary_lecturer">Primary lecturer</string>
 </resources>

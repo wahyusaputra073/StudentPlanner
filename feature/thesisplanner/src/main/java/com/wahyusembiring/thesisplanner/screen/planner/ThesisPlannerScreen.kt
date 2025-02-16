@@ -38,7 +38,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import com.wahyusembiring.data.model.entity.Task
+import com.wahyusembiring.data.model.entity.TaskThesis
 import com.wahyusembiring.data.util.toFile
 import com.wahyusembiring.thesisplanner.R
 import com.wahyusembiring.thesisplanner.component.ArticleList
@@ -202,7 +202,7 @@ private fun ThesisPlannerScreen(
             ) {
                 // Menampilkan daftar tugas
                 TaskList(
-                    tasks = state.tasks, // Daftar tugas
+                    taskTheses = state.taskTheses, // Daftar tugas
                     onCompletedStatusChange = { task, isCompleted ->
                         onUIEvent(ThesisPlannerScreenUIEvent.OnTaskCompletedStatusChange(task, isCompleted)) // Fungsi untuk menangani perubahan status tugas
                     },
@@ -224,9 +224,9 @@ private fun ThesisPlannerScreen(
                     }
             }
         ) {
-            var task by remember { // Menyimpan status tugas yang sedang diedit
+            var taskThesis by remember { // Menyimpan status tugas yang sedang diedit
                 mutableStateOf(
-                    Task(
+                    TaskThesis(
                         thesisId = 0,
                         name = "",
                         dueDate = Date(System.currentTimeMillis()) // Tanggal jatuh tempo default adalah sekarang
@@ -243,7 +243,7 @@ private fun ThesisPlannerScreen(
                         }
                 },
                 onActionButtonClicked = { // Menangani klik tombol simpan
-                    onUIEvent(ThesisPlannerScreenUIEvent.OnSaveTaskClick(task)) // Simpan tugas
+                    onUIEvent(ThesisPlannerScreenUIEvent.OnSaveTaskClick(taskThesis)) // Simpan tugas
                     coroutineScope
                         .launch { sheetState.hide() } // Sembunyikan bottom sheet
                         .invokeOnCompletion {
@@ -261,8 +261,8 @@ private fun ThesisPlannerScreen(
                     ),
                 label = { Text(text = stringResource(R.string.task_name)) },
                 singleLine = true,
-                value = task.name,
-                onValueChange = { task = task.copy(name = it) }, // Update nama tugas
+                value = taskThesis.name,
+                onValueChange = { taskThesis = taskThesis.copy(name = it) }, // Update nama tugas
             )
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.Medium))
             Text( // Menampilkan label untuk memilih tanggal jatuh tempo
@@ -271,7 +271,7 @@ private fun ThesisPlannerScreen(
                 style = MaterialTheme.typography.bodySmall,
             )
             AddDateButton( // Tombol untuk memilih tanggal jatuh tempo
-                date = task.dueDate,
+                date = taskThesis.dueDate,
                 onClicked = {
                     onUIEvent(ThesisPlannerScreenUIEvent.OnDatePickerButtonClick) // Tampilkan date picker
                 }
@@ -283,7 +283,7 @@ private fun ThesisPlannerScreen(
                         onUIEvent(ThesisPlannerScreenUIEvent.OnDatePickerDismiss) // Menangani pembatalan date picker
                     },
                     onDateSelected = {
-                        task = task.copy(dueDate = it) // Update tanggal jatuh tempo tugas
+                        taskThesis = taskThesis.copy(dueDate = it) // Update tanggal jatuh tempo tugas
                     }
                 )
             }
@@ -309,13 +309,13 @@ private fun ThesisPlannerScreen(
         )
     }
 
-    if (state.taskPendingDelete != null) { // Cek apakah ada tugas yang menunggu konfirmasi penghapusan
+    if (state.taskThesisPendingDelete != null) { // Cek apakah ada tugas yang menunggu konfirmasi penghapusan
         ConfirmationAlertDialog( // Menampilkan dialog konfirmasi penghapusan tugas
             title = stringResource(R.string.delete_task),
             message = stringResource(R.string.are_you_sure_you_want_to_delete_this_task),
             positiveButtonText = stringResource(R.string.yes),
             onPositiveButtonClick = {
-                onUIEvent(ThesisPlannerScreenUIEvent.OnTaskDeleteConfirm(state.taskPendingDelete)) // Konfirmasi penghapusan tugas
+                onUIEvent(ThesisPlannerScreenUIEvent.OnTaskDeleteConfirm(state.taskThesisPendingDelete)) // Konfirmasi penghapusan tugas
                 onUIEvent(ThesisPlannerScreenUIEvent.OnTaskDeleteDialogDismiss) // Sembunyikan dialog penghapusan tugas
             },
             negativeButtonText = stringResource(R.string.no),

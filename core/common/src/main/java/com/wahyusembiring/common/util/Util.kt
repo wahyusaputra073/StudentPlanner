@@ -13,6 +13,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewModelScope
+import com.wahyusembiring.common.NOTIFICATION_DESCRIPTION_EXTRA
+import com.wahyusembiring.common.NOTIFICATION_DURATION_EXTRA
 import com.wahyusembiring.common.NOTIFICATION_ID_EXTRA
 import com.wahyusembiring.common.NOTIFICATION_TITLE_EXTRA
 import com.wahyusembiring.common.NotificationBroadcastReceiver
@@ -78,14 +80,18 @@ fun getNotificationReminderPermission(): List<String> {  // Mengembalikan daftar
 }
 
 fun scheduleReminder(
-    context: Context,  // Context aplikasi
-    localDateTime: LocalDateTime,  // Waktu pengingat
-    title: String,  // Judul notifikasi
-    reminderId: Int  // ID pengingat
+    context: Context,
+    localDateTime: LocalDateTime,
+    title: String,
+    description: String,
+    duration: String,  // Add duration parameter
+    reminderId: Int
 ) {
     val intent = Intent(context, NotificationBroadcastReceiver::class.java).apply {
-        putExtra(NOTIFICATION_ID_EXTRA, reminderId)  // Menyimpan ID pengingat dalam intent
-        putExtra(NOTIFICATION_TITLE_EXTRA, title)  // Menyimpan judul pengingat dalam intent
+        putExtra(NOTIFICATION_ID_EXTRA, reminderId)
+        putExtra(NOTIFICATION_TITLE_EXTRA, title)
+        putExtra(NOTIFICATION_DESCRIPTION_EXTRA, description)
+        putExtra(NOTIFICATION_DURATION_EXTRA, duration)
     }
     val pendingIntent = PendingIntent.getBroadcast(
         context,

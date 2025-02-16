@@ -9,8 +9,8 @@ import com.wahyusembiring.common.util.scheduleReminder
 import com.wahyusembiring.data.model.Attachment
 import com.wahyusembiring.data.model.DeadlineTime
 import com.wahyusembiring.data.model.Time
-import com.wahyusembiring.data.model.entity.Homework
 import com.wahyusembiring.data.model.entity.Subject
+import com.wahyusembiring.data.model.entity.Task
 import com.wahyusembiring.data.repository.EventRepository
 import com.wahyusembiring.data.repository.SubjectRepository
 import com.wahyusembiring.homework.R
@@ -24,12 +24,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.LocalDate
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.ZoneId
 import java.util.Date
-import kotlin.math.absoluteValue
 
 @HiltViewModel(assistedFactory = AddTaskScreenViewModel.Factory::class)
 class AddTaskScreenViewModel @AssistedInject constructor(
@@ -82,8 +80,6 @@ class AddTaskScreenViewModel @AssistedInject constructor(
         }
     }
 
-
-
     private fun onEmailAddressChanged(email: String) {
         _state.update { it.copy(emailAddress = email) }
     }
@@ -98,14 +94,14 @@ class AddTaskScreenViewModel @AssistedInject constructor(
                 val emailIntent = Intent(Intent.ACTION_SEND).apply {
                     type = "text/plain"
                     putExtra(Intent.EXTRA_EMAIL, arrayOf(_state.value.emailAddress))
-                    putExtra(Intent.EXTRA_SUBJECT, "Task Details: ${_state.value.homeworkTitle}")
+                    putExtra(Intent.EXTRA_SUBJECT, "[Task] ${_state.value.taskTitle}")
 
                     val emailBody = buildString {
                         appendLine("Task Details:")
-                        appendLine("Title: ${_state.value.homeworkTitle}")
+                        appendLine("Title: ${_state.value.taskTitle}")
                         appendLine("Subject: ${_state.value.subject?.name}")
-                        appendLine("Due Date: ${_state.value.date}")
-                        appendLine("Deadline: ${_state.value.times?.let { "${it.hour}:${it.minute}" } ?: "Not set"}")
+                        appendLine("Due Date: ${SimpleDateFormat("EEE, d MMM yyyy").format(_state.value.date)}")
+                        appendLine("Deadline: ${_state.value.times?.let { "${it.hour.toString().padStart(2, '0')}:${it.minute.toString().padStart(2, '0')}" } ?: "Not set"}")
                         appendLine("Description: ${_state.value.description}")
                     }
 
@@ -190,9 +186,9 @@ class AddTaskScreenViewModel @AssistedInject constructor(
     private suspend fun onConfirmSaveHomeworkClick() {
         _state.update { it.copy(showSavingLoading = true) }
         try {
-            val homework = Homework(
+            val homework = Task(
                 id = if (homeworkId == -1) 0 else homeworkId,
-                title = _state.value.homeworkTitle.ifBlank { throw MissingRequiredFieldException.Title() },
+                title = _state.value.taskTitle.ifBlank { throw MissingRequiredFieldException.Title() },
                 dueDate = _state.value.date ?: throw MissingRequiredFieldException.Date(),
                 subjectId = _state.value.subject?.id ?: throw MissingRequiredFieldException.Subject(),
                 reminder = _state.value.time,
@@ -209,57 +205,64 @@ class AddTaskScreenViewModel @AssistedInject constructor(
                 homeworkId
             }
 
-            try {
-                // Calculate the due date's LocalDateTime
+            // Calculate the due date's LocalDateTime
+            val dueDate = LocalDateTime.ofInstant(
+                homework.dueDate.toInstant(),
+                ZoneId.systemDefault()
+            )
+
+            // Handle reminder notification
+            // Perbaikan pada onConfirmSaveHomeworkClick()
+// Handle reminder notification
+            homework.reminder?.let { reminder ->
+                // Calculate base due date time dan reset ke 00:00:00
                 val dueDate = LocalDateTime.ofInstant(
                     homework.dueDate.toInstant(),
                     ZoneId.systemDefault()
+                ).withHour(0).withMinute(0).withSecond(0)
+
+
+                val durationStr = "Deadline: ${_state.value.times?.let { "${it.hour.toString().padStart(2, '0')}:${it.minute.toString().padStart(2, '0')}" } ?: "Not set"}"
+
+
+                // Calculate reminder time
+                val reminderDateTime = dueDate.plusHours(reminder.hour.toLong())
+                    .plusMinutes(reminder.minute.toLong())
+
+                scheduleReminderNotification(
+                    title = "${homework.title} - Task reminder",
+                    description = homework.description,
+                    duration = durationStr,
+                    reminderId = newHomeworkId.toInt(),
+                    localDateTime = reminderDateTime
                 )
-
-                // Handle reminder notification
-                homework.reminder?.let { reminder ->
-                    // Calculate reminder time by adjusting from due date
-                    val reminderDateTime = dueDate.plusHours(reminder.hour.toLong())
-                        .plusMinutes(reminder.minute.toLong())
-
-                    scheduleReminderNotification(
-                        title = "${homework.title} - Reminder",
-                        reminderId = newHomeworkId.toInt(),
-                        localDateTime = reminderDateTime
-                    )
-                }
-
-                // Handle deadline notification
-                homework.deadline?.let { deadline ->
-                    val deadlineTime = LocalTime.of(deadline.hour, deadline.minute)
-                    val deadlineDateTime = LocalDateTime.of(
-                        LocalDate.ofInstant(homework.dueDate.toInstant(), ZoneId.systemDefault()),
-                        deadlineTime
-                    )
-
-                    scheduleReminderNotification(
-                        title = "${homework.title} - Deadline",
-                        reminderId = (newHomeworkId.toInt() + 100000), // Offset untuk membedakan dengan reminder
-                        localDateTime = deadlineDateTime
-                    )
-                }
-
-                _state.update {
-                    it.copy(
-                        showSavingLoading = false,
-                        showHomeworkSavedDialog = true
-                    )
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                _state.update {
-                    it.copy(
-                        showSavingLoading = false,
-                        showHomeworkSavedDialog = true,
-                        errorMessage = UIText.StringResource(R.string.notification_scheduling_failed)
-                    )
-                }
             }
+
+// Handle deadline notification
+            homework.deadline?.let { deadline ->
+                val deadlineDateTime = LocalDateTime.ofInstant(
+                    homework.dueDate.toInstant(),
+                    ZoneId.systemDefault()
+                ).withHour(deadline.hour).withMinute(deadline.minute).withSecond(0)
+
+                val durationStr = "Deadline: ${_state.value.times?.let { "${it.hour.toString().padStart(2, '0')}:${it.minute.toString().padStart(2, '0')}" } ?: "Not set"}"
+
+                scheduleReminderNotification(
+                    title = "${homework.title} - Task deadline",
+                    description = homework.description,
+                    duration = durationStr,
+                    reminderId = (newHomeworkId.toInt() + 100000),
+                    localDateTime = deadlineDateTime
+                )
+            }
+
+            _state.update {
+                it.copy(
+                    showSavingLoading = false,
+                    showHomeworkSavedDialog = true
+                )
+            }
+
         } catch (e: MissingRequiredFieldException) {
             _state.update { it.copy(showSavingLoading = false) }
             val errorMessage = when (e) {
@@ -282,14 +285,18 @@ class AddTaskScreenViewModel @AssistedInject constructor(
         context: Context = application.applicationContext,
         title: String,
         reminderId: Int,
-        localDateTime: LocalDateTime
+        localDateTime: LocalDateTime,
+        description : String,
+        duration: String,
     ) {
         try {
             scheduleReminder(
                 context = context,
                 localDateTime = localDateTime,
                 title = title,
-                reminderId = reminderId
+                reminderId = reminderId,
+                description = description,
+                duration = duration,
             )
         } catch (e: Exception) {
             throw RuntimeException("Failed to schedule notification for: $title", e)
@@ -297,7 +304,7 @@ class AddTaskScreenViewModel @AssistedInject constructor(
     }
 
     private fun onHomeworkTitleChanged(title: String) {
-        _state.update { it.copy(homeworkTitle = title) }
+        _state.update { it.copy(taskTitle = title) }
     }
 
     private fun onExamDescriptionChanged(description: String) {
@@ -328,7 +335,7 @@ class AddTaskScreenViewModel @AssistedInject constructor(
                     _state.update {
                         it.copy(
                             isEditMode = true,
-                            homeworkTitle = homeworkDto.homework.title,
+                            taskTitle = homeworkDto.homework.title,
                             date = homeworkDto.homework.dueDate,
                             time = homeworkDto.homework.reminder,
                             times = homeworkDto.homework.deadline,

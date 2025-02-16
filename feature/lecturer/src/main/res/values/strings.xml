@@ -12,4 +12,6 @@
     <string name="no_subject_added">No Subject added</string>
     <string name="edit">Edit</string>
     <string name="delete_lecture">Delete Lecture</string>
+    <string name="primary_lecturer_subjects">Primary lecturer</string>
+    <string name="secondary_lecturer_subjects">Second lecturer</string>
 </resources>

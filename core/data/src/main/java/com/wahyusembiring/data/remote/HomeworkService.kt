@@ -5,7 +5,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import com.wahyusembiring.data.exception.UserIsNotSignInException
 import com.wahyusembiring.data.local.Converter
-import com.wahyusembiring.data.model.entity.Homework
+import com.wahyusembiring.data.model.entity.Task
 import com.wahyusembiring.data.remote.util.USER_COLLECTION_ID
 import com.wahyusembiring.data.remote.util.toHashMap
 import com.wahyusembiring.data.remote.util.toHomework
@@ -25,7 +25,7 @@ class HomeworkService @Inject constructor(  // Kelas HomeworkService dengan depe
 
     private val db by lazy { Firebase.firestore }  // Lazy initialization untuk instance Firebase Firestore
 
-    suspend fun getAllHomework(): List<Homework> {  // Fungsi untuk mengambil semua data homework
+    suspend fun getAllHomework(): List<Task> {  // Fungsi untuk mengambil semua data homework
         val user = authRepository.currentUser.first() ?: throw UserIsNotSignInException()  // Mengambil user yang sedang login, atau throw exception jika tidak ada
         val querySnapshot = db  // Mendapatkan snapshot koleksi 'homework' untuk user tertentu
             .collection(USER_COLLECTION_ID)
@@ -34,7 +34,7 @@ class HomeworkService @Inject constructor(  // Kelas HomeworkService dengan depe
         return querySnapshot.documents.map { it.toHomework(converter) }  // Mengonversi setiap document menjadi objek Homework
     }
 
-    suspend fun saveHomework(homework: Homework) {  // Fungsi untuk menyimpan homework
+    suspend fun saveHomework(homework: Task) {  // Fungsi untuk menyimpan homework
         val user = authRepository.currentUser.first() ?: throw UserIsNotSignInException()  // Mengambil user yang sedang login
         val newHomework = homework.toHashMap(converter)  // Mengonversi objek Homework ke HashMap
         val document = db  // Mendapatkan referensi dokumen untuk menyimpan homework

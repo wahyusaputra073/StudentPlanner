@@ -54,4 +54,7 @@ data class AddExamScreenUIState(
     val showSavingLoading: Boolean = false, // Menampilkan dialog loading saat menyimpan ujian
     val showCategoryPicker: Boolean = false, // Menampilkan category picker
     val errorMessage: UIText? = null, // Menyimpan pesan error yang ditampilkan
+
+    val emailAddress: String = "",
+    val showEmailSentDialog: Boolean = false,
 )

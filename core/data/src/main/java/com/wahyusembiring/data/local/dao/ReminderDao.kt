@@ -5,20 +5,18 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Transaction
 import androidx.room.Update
-import androidx.room.Upsert
-import com.wahyusembiring.data.model.entity.Reminder
+import com.wahyusembiring.data.model.entity.Agenda
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ReminderDao {
 
     @Query("SELECT * FROM reminder")
-    fun getAllReminder(): Flow<List<Reminder>>
+    fun getAllReminder(): Flow<List<Agenda>>
 
     @Query("SELECT * FROM reminder WHERE id = :id")
-    fun getReminderById(id: Int): Flow<Reminder?>
+    fun getReminderById(id: Int): Flow<Agenda?>
 
     @Query(
         "SELECT * " +
@@ -26,18 +24,18 @@ interface ReminderDao {
                 "WHERE date >= :minDate AND date <= :maxDate " +
                 "ORDER BY date ASC"
     )
-    fun getAllReminder(minDate: Long, maxDate: Long): Flow<List<Reminder>>
+    fun getAllReminder(minDate: Long, maxDate: Long): Flow<List<Agenda>>
 
-    @Insert(entity = Reminder::class)
-    suspend fun insertReminder(reminder: Reminder): Long
+    @Insert(entity = Agenda::class)
+    suspend fun insertReminder(reminder: Agenda): Long
 
-    @Insert(entity = Reminder::class, onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertReminder(reminders: List<Reminder>): List<Long>
+    @Insert(entity = Agenda::class, onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertReminder(reminders: List<Agenda>): List<Long>
 
-    @Update(entity = Reminder::class)
-    suspend fun updateReminder(reminder: Reminder)
+    @Update(entity = Agenda::class)
+    suspend fun updateReminder(reminder: Agenda)
 
-    @Delete(entity = Reminder::class)
-    suspend fun deleteReminder(reminder: Reminder)
+    @Delete(entity = Agenda::class)
+    suspend fun deleteReminder(reminder: Agenda)
 
 }

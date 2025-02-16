@@ -11,7 +11,6 @@ import com.wahyusembiring.data.model.OfficeHour
 data class Lecturer(  // Mendefinisikan data class untuk entitas Lecturer
     @PrimaryKey(autoGenerate = true)  // Menandai kolom id sebagai primary key yang otomatis di-generate
     val id: Int = 0,
-
     val photo: Uri?,  // Foto dari dosen, opsional (dapat berupa URI)
 
     val name: String,  // Nama dosen

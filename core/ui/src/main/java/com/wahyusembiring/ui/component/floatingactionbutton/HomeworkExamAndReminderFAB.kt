@@ -41,14 +41,14 @@ fun HomeworkExamAndReminderFAB(
                     onDismiss()
                     onReminderFabClick()
                 },
+                onHomeworkFabClick = {
+                    onDismiss()
+                    onHomeworkFabClick()
+                },
                 onExamFabClick = {
                     onDismiss()
                     onExamFabClick()
                 },
-                onHomeworkFabClick = {
-                    onDismiss()
-                    onHomeworkFabClick()
-                }
             )
         }
     )
@@ -99,6 +99,17 @@ private fun ColumnScope.SubFloatingActionButton(
         )
     }
 
+    // Menampilkan FAB untuk homework, jika isExpanded bernilai true
+    SubFloatingActionButton(
+        isVisible = isExpanded,
+        onClick = onHomeworkFabClick,
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.ic_homework), // Menampilkan ikon homework
+            contentDescription = stringResource(R.string.add_homework) // Deskripsi untuk aksesibilitas
+        )
+    }
+
     // Menampilkan FAB untuk exam, jika isExpanded bernilai true
     SubFloatingActionButton(
         isVisible = isExpanded,
@@ -110,14 +121,5 @@ private fun ColumnScope.SubFloatingActionButton(
         )
     }
 
-    // Menampilkan FAB untuk homework, jika isExpanded bernilai true
-    SubFloatingActionButton(
-        isVisible = isExpanded,
-        onClick = onHomeworkFabClick,
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.ic_homework), // Menampilkan ikon homework
-            contentDescription = stringResource(R.string.add_homework) // Deskripsi untuk aksesibilitas
-        )
-    }
+
 }

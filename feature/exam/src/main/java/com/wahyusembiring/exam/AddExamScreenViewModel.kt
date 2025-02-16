@@ -2,6 +2,7 @@ package com.wahyusembiring.exam
 
 import android.app.Application
 import android.content.Context
+import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wahyusembiring.common.util.launch
@@ -24,165 +25,165 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
 import java.util.Date
 
-// ViewModel untuk layar ExamScreen yang mengelola state UI dan event terkait ujian
 @HiltViewModel(assistedFactory = AddExamScreenViewModel.Factory::class)
 class AddExamScreenViewModel @AssistedInject constructor(
-    @Assisted val examId: Int = -1, // ID ujian untuk edit mode
-    private val eventRepository: EventRepository, // Repository untuk mengelola data ujian
-    private val subjectRepository: SubjectRepository, // Repository untuk mengelola mata pelajaran
-    private val application: Application // Akses ke aplikasi untuk keperluan pengingat
+    @Assisted val examId: Int = -1,
+    private val eventRepository: EventRepository,
+    private val subjectRepository: SubjectRepository,
+    private val application: Application
 ) : ViewModel() {
 
-    // Factory untuk membuat instance ViewModel dengan examId sebagai parameter
     @AssistedFactory
     interface Factory {
         fun create(examId: Int = -1): AddExamScreenViewModel
     }
 
-    // State yang menyimpan status UI untuk layar ExamScreen
     private val _state = MutableStateFlow(AddExamScreenUIState())
     val state = _state.asStateFlow()
 
-    private var getAllSubjectJob: Job? = null // Job untuk mengambil daftar mata pelajaran
+    private var getAllSubjectJob: Job? = null
 
-    // Fungsi untuk menangani event yang terjadi di UI
     fun onUIEvent(event: AddExamScreenUIEvent) {
         when (event) {
-            // Event untuk perubahan nama ujian
             is AddExamScreenUIEvent.OnExamNameChanged -> onExamNameChanged(event.name)
-            // Event untuk perubahan deskripsi ujian
             is AddExamScreenUIEvent.OnExamDescriptionChanged -> onExamDescriptionChanged(event.name)
-            // Event untuk klik picker tanggal ujian
             is AddExamScreenUIEvent.OnExamDatePickerClick -> launch { onExamDatePickerClick() }
-            // Event untuk klik picker waktu ujian
             is AddExamScreenUIEvent.OnExamTimePickerClick -> launch { onExamTimePickerClick() }
-            // Event untuk klik picker waktu deadline ujian
             is AddExamScreenUIEvent.OnExamDeadlineTimePickerClick -> launch { onExamDeadlineTimePickerClick() }
-            // Event untuk klik picker mata pelajaran
             is AddExamScreenUIEvent.OnExamSubjectPickerClick -> launch { onExamSubjectPickerClick() }
-            // Event untuk klik picker lampiran ujian
             is AddExamScreenUIEvent.OnExamAttachmentPickerClick -> launch { onExamAttachmentPickerClick() }
-            // Event untuk klik picker kategori ujian
             is AddExamScreenUIEvent.OnExamCategoryPickerClick -> launch { onExamCategoryPickerClick() }
-            // Event untuk klik tombol simpan ujian
             is AddExamScreenUIEvent.OnSaveExamButtonClick -> launch { onSaveExamButtonClick() }
-            // Event untuk lampiran yang dipilih
             is AddExamScreenUIEvent.OnAttachmentPicked -> onAttachmentPicked(event.attachments)
-            // Event untuk menutup popup lampiran
             is AddExamScreenUIEvent.OnAttachmentPickedDismiss -> onAttachmentPickedDismiss()
-            // Event untuk kategori yang dipilih
             is AddExamScreenUIEvent.OnCategoryPicked -> onCategoryPicked(event.category)
-            // Event untuk menutup popup kategori
             is AddExamScreenUIEvent.OnCategoryPickedDismiss -> onCategoryPickedDismiss()
-            // Event untuk tanggal yang dipilih
             is AddExamScreenUIEvent.OnDatePicked -> onDatePicked(event.date)
-            // Event untuk menutup popup tanggal
             is AddExamScreenUIEvent.OnDatePickedDismiss -> onDatePickedDismiss()
-            // Event untuk menutup dialog error
             is AddExamScreenUIEvent.OnErrorDialogDismiss -> onErrorDialogDismiss()
-            // Event untuk menutup dialog ujian tersimpan
             is AddExamScreenUIEvent.OnExamSavedDialogDismiss -> onExamSavedDialogDismiss()
-            // Event untuk menutup dialog konfirmasi simpan ujian
             is AddExamScreenUIEvent.OnSaveConfirmationDialogDismiss -> onSaveConfirmationDialogDismiss()
-            // Event untuk klik konfirmasi simpan ujian
             is AddExamScreenUIEvent.OnSaveExamConfirmClick -> launch { onSaveExamConfirmClick() }
-            // Event untuk mata pelajaran yang dipilih
             is AddExamScreenUIEvent.OnSubjectPicked -> onSubjectPicked(event.subject)
-            // Event untuk menutup popup mata pelajaran
             is AddExamScreenUIEvent.OnSubjectPickedDismiss -> onSubjectPickedDismiss()
-            // Event untuk waktu yang dipilih
             is AddExamScreenUIEvent.OnTimePicked -> onTimePicked(event.time)
-            // Event untuk waktu deadline yang dipilih
             is AddExamScreenUIEvent.OnDeadlineTimePicked -> onDeadlineTimePicked(event.times)
-            // Event untuk menutup popup waktu
             is AddExamScreenUIEvent.OnTimePickedDismiss -> onTimePickedDismiss()
-            // Event untuk menutup popup waktu deadline
             is AddExamScreenUIEvent.OnDeadlineTimePickedDismiss -> onDeadlineTimePickedDismiss()
+
+            is AddExamScreenUIEvent.OnEmailAddressChanged -> onEmailAddressChanged(event.email)
+            is AddExamScreenUIEvent.OnSendEmailButtonClicked -> sendTaskViaEmail()
+            is AddExamScreenUIEvent.OnDismissEmailSentDialog -> onDismissEmailSentDialog()
         }
     }
 
-    // Fungsi untuk menutup picker waktu
+
+    private fun onEmailAddressChanged(email: String) {
+        _state.update { it.copy(emailAddress = email) }
+    }
+
+    private fun onDismissEmailSentDialog() {
+        _state.update { it.copy(showEmailSentDialog = false) }
+    }
+
+    private fun sendTaskViaEmail() {
+        viewModelScope.launch {
+            try {
+                val emailIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_EMAIL, arrayOf(_state.value.emailAddress))
+                    putExtra(Intent.EXTRA_SUBJECT, "[Exam] ${_state.value.name}")
+
+                    val emailBody = buildString {
+                        appendLine("Task Details:")
+                        appendLine("Title: ${_state.value.name}")
+                        appendLine("Subject: ${_state.value.subject?.name}")
+                        appendLine("Due Date: ${SimpleDateFormat("EEE, d MMM yyyy").format(_state.value.date)}")
+                        appendLine("Deadline : ${_state.value.times?.let { "${it.hour.toString().padStart(2, '0')}:${it.minute.toString().padStart(2, '0')}" } ?: "Not set"}")
+                        appendLine("Description: ${_state.value.description}")
+                    }
+
+                    putExtra(Intent.EXTRA_TEXT, emailBody)
+                }
+
+                emailIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                application.startActivity(emailIntent)
+                _state.update { it.copy(showEmailSentDialog = true) }
+            } catch (e: Exception) {
+                _state.update {
+                    it.copy(errorMessage = UIText.DynamicString("Failed to send email: ${e.message}"))
+                }
+            }
+        }
+    }
+
     private fun onTimePickedDismiss() {
         _state.update { it.copy(showTimePicker = false) }
     }
 
-    // Fungsi untuk menutup picker waktu deadline
     private fun onDeadlineTimePickedDismiss() {
         _state.update { it.copy(showDeadlineTimePicker = false) }
     }
 
-    // Fungsi untuk menyimpan waktu deadline yang dipilih
     private fun onDeadlineTimePicked(times: DeadlineTime) {
         _state.update { it.copy(times = times) }
     }
 
-    // Fungsi untuk menyimpan waktu yang dipilih
     private fun onTimePicked(time: Time) {
         _state.update { it.copy(time = time) }
     }
 
-    // Fungsi untuk menutup picker mata pelajaran
     private fun onSubjectPickedDismiss() {
         _state.update { it.copy(showSubjectPicker = false) }
     }
 
-    // Fungsi untuk menyimpan mata pelajaran yang dipilih
     private fun onSubjectPicked(subject: Subject) {
         _state.update { it.copy(subject = subject) }
     }
 
-    // Fungsi untuk menutup dialog konfirmasi simpan ujian
     private fun onSaveConfirmationDialogDismiss() {
         _state.update { it.copy(showSaveConfirmationDialog = false) }
     }
 
-    // Fungsi untuk menutup dialog ujian tersimpan
     private fun onExamSavedDialogDismiss() {
         _state.update { it.copy(showExamSavedDialog = false) }
     }
 
-    // Fungsi untuk menutup dialog error
     private fun onErrorDialogDismiss() {
         _state.update { it.copy(errorMessage = null) }
     }
 
-    // Fungsi untuk menutup picker tanggal
     private fun onDatePickedDismiss() {
         _state.update { it.copy(showDatePicker = false) }
     }
 
-    // Fungsi untuk menyimpan tanggal yang dipilih
     private fun onDatePicked(date: Date) {
         _state.update { it.copy(date = date) }
     }
 
-    // Fungsi untuk menutup picker kategori ujian
     private fun onCategoryPickedDismiss() {
         _state.update { it.copy(showCategoryPicker = false) }
     }
 
-    // Fungsi untuk menyimpan kategori ujian yang dipilih
     private fun onCategoryPicked(category: ExamCategory) {
         _state.update { it.copy(category = category) }
     }
 
-    // Fungsi untuk menutup picker lampiran ujian
     private fun onAttachmentPickedDismiss() {
         _state.update { it.copy(showAttachmentPicker = false) }
     }
 
-    // Fungsi untuk menyimpan lampiran ujian yang dipilih
     private fun onAttachmentPicked(attachments: List<Attachment>) {
         _state.update { it.copy(attachments = attachments) }
     }
 
-    // Inisialisasi: memuat data ujian jika examId ada dan memuat daftar mata pelajaran
     init {
         if (examId != -1) {
             viewModelScope.launch {
@@ -205,7 +206,6 @@ class AddExamScreenViewModel @AssistedInject constructor(
                 }
             }
         }
-        // Memulai job untuk mengambil daftar mata pelajaran
         getAllSubjectJob = viewModelScope.launch {
             subjectRepository.getAllSubject().collect { subjects ->
                 _state.update { it.copy(subjects = subjects) }
@@ -213,7 +213,6 @@ class AddExamScreenViewModel @AssistedInject constructor(
         }
     }
 
-    // Fungsi untuk menampilkan dialog konfirmasi simpan ujian
     private suspend fun onSaveExamButtonClick() {
         _state.update { it.copy(showSaveConfirmationDialog = true) }
     }
@@ -241,57 +240,62 @@ class AddExamScreenViewModel @AssistedInject constructor(
                 examId
             }
 
-            try {
-                // Calculate the exam's LocalDateTime
+            // Calculate the exam's LocalDateTime
+            val examDate = LocalDateTime.ofInstant(
+                exam.date.toInstant(),
+                ZoneId.systemDefault()
+            )
+
+            // Handle reminder notification
+            // Perbaikan pada onSaveExamConfirmClick()
+// Handle reminder notification
+            exam.reminder?.let { reminder ->
+                // Calculate base exam date time dan reset ke 00:00:00
                 val examDate = LocalDateTime.ofInstant(
                     exam.date.toInstant(),
                     ZoneId.systemDefault()
+                ).withHour(0).withMinute(0).withSecond(0)
+
+                val durationStr = "Deadline : ${_state.value.times?.let { "${it.hour.toString().padStart(2, '0')}:${it.minute.toString().padStart(2, '0')}" } ?: "Not set"}"
+
+                // Calculate reminder time
+                val reminderDateTime = examDate.plusHours(reminder.hour.toLong())
+                    .plusMinutes(reminder.minute.toLong())
+
+                scheduleReminderNotification(
+                    title = "${exam.title} - Exam reminder",
+                    description  = exam.description,
+                    duration = durationStr,
+                    reminderId = newExamId.toInt(),
+                    localDateTime = reminderDateTime,
                 )
-
-                // Handle reminder notification
-                exam.reminder?.let { reminder ->
-                    // Calculate reminder time by adjusting from exam date
-                    val reminderDateTime = examDate.plusHours(reminder.hour.toLong())
-                        .plusMinutes(reminder.minute.toLong())
-
-                    scheduleReminderNotification(
-                        title = "${exam.title} - Reminder",
-                        reminderId = newExamId.toInt(),
-                        localDateTime = reminderDateTime
-                    )
-                }
-
-                // Handle deadline notification
-                exam.deadline?.let { deadline ->
-                    val deadlineTime = LocalTime.of(deadline.hour, deadline.minute)
-                    val deadlineDateTime = LocalDateTime.of(
-                        LocalDate.ofInstant(exam.date.toInstant(), ZoneId.systemDefault()),
-                        deadlineTime
-                    )
-
-                    scheduleReminderNotification(
-                        title = "${exam.title} - Deadline",
-                        reminderId = (newExamId.toInt() + 100000), // Offset untuk membedakan dengan reminder
-                        localDateTime = deadlineDateTime
-                    )
-                }
-
-                _state.update {
-                    it.copy(
-                        showSavingLoading = false,
-                        showExamSavedDialog = true
-                    )
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                _state.update {
-                    it.copy(
-                        showSavingLoading = false,
-                        showExamSavedDialog = true,
-                        errorMessage = UIText.StringResource(R.string.notification_scheduling_failed)
-                    )
-                }
             }
+
+// Handle deadline notification
+            exam.deadline?.let { deadline ->
+                val deadlineDateTime = LocalDateTime.ofInstant(
+                    exam.date.toInstant(),
+                    ZoneId.systemDefault()
+                ).withHour(deadline.hour).withMinute(deadline.minute).withSecond(0)
+
+                val durationStr = "Deadline : ${_state.value.times?.let { "${it.hour.toString().padStart(2, '0')}:${it.minute.toString().padStart(2, '0')}" } ?: "Not set"}"
+
+                scheduleReminderNotification(
+                    title = "${exam.title} - Exam deadline",
+                    description = exam.description,
+                    duration = durationStr,
+                    reminderId = (newExamId.toInt() + 100000),
+                    localDateTime = deadlineDateTime
+                )
+            }
+
+            _state.update {
+                it.copy(
+                    showSavingLoading = false,
+                    showExamSavedDialog = true
+                )
+            }
+
         } catch (e: MissingRequiredFieldException) {
             _state.update { it.copy(showSavingLoading = false) }
             val errorMessage = when (e) {
@@ -308,62 +312,57 @@ class AddExamScreenViewModel @AssistedInject constructor(
     private fun scheduleReminderNotification(
         context: Context = application.applicationContext,
         title: String,
+        description : String,
         reminderId: Int,
-        localDateTime: LocalDateTime
+        localDateTime: LocalDateTime,
+        duration: String,
     ) {
         try {
             scheduleReminder(
                 context = context,
                 localDateTime = localDateTime,
                 title = title,
-                reminderId = reminderId
+                reminderId = reminderId,
+                description = description,
+                duration = duration,
             )
         } catch (e: Exception) {
             throw RuntimeException("Failed to schedule notification for: $title", e)
         }
     }
 
-    // Fungsi untuk mengubah nama ujian
     private fun onExamNameChanged(name: String) {
         _state.value = _state.value.copy(name = name)
     }
 
-    // Fungsi untuk mengubah deskripsi ujian
     private fun onExamDescriptionChanged(description: String) {
         _state.value = _state.value.copy(description = description)
     }
 
-    // Fungsi untuk membuka picker tanggal ujian
     private fun onExamDatePickerClick() {
         _state.update { it.copy(showDatePicker = true) }
     }
 
-    // Fungsi untuk membuka picker waktu ujian
     private fun onExamTimePickerClick() {
         _state.update { it.copy(showTimePicker = true) }
     }
 
-    // Fungsi untuk membuka picker waktu deadline ujian
     private fun onExamDeadlineTimePickerClick() {
         _state.update { it.copy(showDeadlineTimePicker = true) }
     }
 
-    // Fungsi untuk membuka picker mata pelajaran
     private fun onExamSubjectPickerClick() {
         _state.update { it.copy(showSubjectPicker = true) }
     }
 
-    // Fungsi untuk membuka picker kategori ujian
     private fun onExamCategoryPickerClick() {
         _state.update { it.copy(showCategoryPicker = true) }
     }
 
-    // Fungsi untuk membuka picker lampiran ujian
     private fun onExamAttachmentPickerClick() {
         _state.update { it.copy(showAttachmentPicker = true) }
     }
 
-    // Menangani pembatalan atau pembersihan resource ketika ViewModel dihancurkan
     override fun onCleared() {
         getAllSubjectJob?.cancel()
         getAllSubjectJob = null

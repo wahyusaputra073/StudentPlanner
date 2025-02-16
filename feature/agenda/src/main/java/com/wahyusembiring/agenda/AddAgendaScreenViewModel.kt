@@ -2,6 +2,7 @@ package com.wahyusembiring.agenda
 
 import android.app.Application
 import android.content.Context
+import android.content.Intent
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,7 +10,7 @@ import com.wahyusembiring.common.util.scheduleReminder
 import com.wahyusembiring.data.model.Attachment
 import com.wahyusembiring.data.model.SpanTime
 import com.wahyusembiring.data.model.Time
-import com.wahyusembiring.data.model.entity.Reminder
+import com.wahyusembiring.data.model.entity.Agenda
 import com.wahyusembiring.data.repository.EventRepository
 import com.wahyusembiring.reminder.R
 import com.wahyusembiring.ui.util.UIText
@@ -21,6 +22,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -67,33 +69,82 @@ class AddAgendaScreenViewModel @AssistedInject constructor(
                 is AddAgendaScreenUIEvent.OnTimePicked -> onTimePicked(event.time)
                 AddAgendaScreenUIEvent.OnAttachmentPickerButtonClick -> TODO()
                 AddAgendaScreenUIEvent.OnColorPickerButtonClick -> TODO()
+
+                is AddAgendaScreenUIEvent.OnEmailAddressChanged -> onEmailAddressChanged(event.email)
+                is AddAgendaScreenUIEvent.OnSendEmailButtonClicked -> sendTaskViaEmail()
+                is AddAgendaScreenUIEvent.OnDismissEmailSentDialog -> onDismissEmailSentDialog()
             }
         }
     }
+
+
+    private fun onEmailAddressChanged(email: String) {
+        _state.update { it.copy(emailAddress = email) }
+    }
+
+    private fun onDismissEmailSentDialog() {
+        _state.update { it.copy(showEmailSentDialog = false) }
+    }
+
+    private fun sendTaskViaEmail() {
+        viewModelScope.launch {
+            try {
+                val emailIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_EMAIL, arrayOf(_state.value.emailAddress))
+                    putExtra(Intent.EXTRA_SUBJECT, "[Agenda] ${_state.value.title}")
+
+                    val emailBody = buildString {
+                        appendLine("Agenda Details:")
+                        appendLine("Title: ${_state.value.title}")
+                        appendLine("Due Date: ${SimpleDateFormat("EEE, d MMM yyyy").format(_state.value.date)}")
+                        appendLine("From ${_state.value.spanTime?.let { "${it.startTime.hour.toString().padStart(2, '0')}:${it.startTime.minute.toString().padStart(2, '0')}" } ?: "Not set"} to ${_state.value.spanTime?.let { "${it.endTime.hour.toString().padStart(2, '0')}:${it.endTime.minute.toString().padStart(2, '0')}" } ?: ""}")
+                        appendLine("Description: ${_state.value.description}")
+                    }
+
+                    putExtra(Intent.EXTRA_TEXT, emailBody)
+                }
+
+                emailIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                application.startActivity(emailIntent)
+                _state.update { it.copy(showEmailSentDialog = true) }
+            } catch (e: Exception) {
+                _state.update {
+                    it.copy(errorMessage = UIText.DynamicString("Failed to send email: ${e.message}"))
+                }
+            }
+        }
+    }
+
 
     private fun scheduleReminderNotification(
         context: Context = application.applicationContext,
         title: String,
         reminderId: Int,
         localDateTime: LocalDateTime,
-        description: String? = null
+        description: String,
+        duration: String,
     ) {
         try {
             scheduleReminder(
                 context = context,
                 localDateTime = localDateTime,
                 title = title,
-                reminderId = reminderId
+                description = description,
+                reminderId = reminderId,
+                duration = duration,
             )
         } catch (e: Exception) {
             throw RuntimeException("Failed to schedule notification for: $title", e)
         }
     }
 
+
+
     private suspend fun onSaveReminderConfirmClick() {
         _state.update { it.copy(showSavingLoading = true) }
         try {
-            val reminder = Reminder(
+            val reminder = Agenda(
                 id = if (reminderId != -1) reminderId else 0,
                 title = _state.value.title.ifBlank { throw MissingRequiredFieldException.Title() },
                 date = _state.value.date ?: throw MissingRequiredFieldException.Date(),
@@ -112,63 +163,64 @@ class AddAgendaScreenViewModel @AssistedInject constructor(
                 reminderId
             }
 
-            try {
-                // Calculate base event date time
-                val eventDateTime = LocalDateTime.ofInstant(
-                    reminder.date.toInstant(),
-                    ZoneId.systemDefault()
+            // Calculate base event date time
+            // Calculate base event date time
+            val eventDateTime = LocalDateTime.ofInstant(
+                reminder.date.toInstant(),
+                ZoneId.systemDefault()
+            ).withHour(0).withMinute(0).withSecond(0) // Reset waktu ke 00:00:00
+
+
+            val durationStr = "From ${_state.value.spanTime?.let { "${it.startTime.hour.toString().padStart(2, '0')}:${it.startTime.minute.toString().padStart(2, '0')}" } ?: "Not set"} to ${_state.value.spanTime?.let { "${it.endTime.hour.toString().padStart(2, '0')}:${it.endTime.minute.toString().padStart(2, '0')}" } ?: ""}"
+
+            // Handle main event notification
+            scheduleReminderNotification(
+                title = "${reminder.title} - Agenda reminder",
+                description = reminder.description,
+                duration = durationStr,
+                reminderId = savedReminderId.toInt(),
+                localDateTime = eventDateTime.plusHours(reminder.time.hour.toLong())
+                    .plusMinutes(reminder.time.minute.toLong())
+            )
+
+            // Handle duration notifications
+            reminder.duration.let { duration ->
+                // Calculate duration start time
+                val startDateTime = LocalDateTime.of(
+                    LocalDate.ofInstant(reminder.date.toInstant(), ZoneId.systemDefault()),
+                    LocalTime.of(duration.startTime.hour, duration.startTime.minute)
                 )
 
-                // Handle main event notification
                 scheduleReminderNotification(
-                    title = "${reminder.title} - Agenda Reminder",
-                    reminderId = savedReminderId.toInt(),
-                    localDateTime = eventDateTime.plusHours(reminder.time.hour.toLong())
-                        .plusMinutes(reminder.time.minute.toLong())
+                    title = "${reminder.title} - Agenda start",
+                    description = reminder.description,
+                    duration = durationStr,
+                    reminderId = (savedReminderId.toInt() * 100 + 1),
+                    localDateTime = startDateTime
                 )
 
-                // Handle duration notifications
-                reminder.duration?.let { duration ->
-                    // Calculate duration start time
-                    val startDateTime = LocalDateTime.of(
-                        LocalDate.ofInstant(reminder.date.toInstant(), ZoneId.systemDefault()),
-                        LocalTime.of(duration.startTime.hour, duration.startTime.minute)
-                    )
+                // Calculate duration end time
+                val endDateTime = LocalDateTime.of(
+                    LocalDate.ofInstant(reminder.date.toInstant(), ZoneId.systemDefault()),
+                    LocalTime.of(duration.endTime.hour, duration.endTime.minute)
+                )
 
-                    scheduleReminderNotification(
-                        title = "${reminder.title} - Agenda Start",
-                        reminderId = (savedReminderId.toInt() * 100 + 1),
-                        localDateTime = startDateTime
-                    )
-
-                    // Calculate duration end time
-                    val endDateTime = LocalDateTime.of(
-                        LocalDate.ofInstant(reminder.date.toInstant(), ZoneId.systemDefault()),
-                        LocalTime.of(duration.endTime.hour, duration.endTime.minute)
-                    )
-
-                    scheduleReminderNotification(
-                        title = "${reminder.title} - Agenda End",
-                        reminderId = (savedReminderId.toInt() * 100 + 2),
-                        localDateTime = endDateTime
-                    )
-                }
-
-                _state.update {
-                    it.copy(
-                        showSavingLoading = false,
-                        showReminderSavedDialog = true
-                    )
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                _state.update {
-                    it.copy(
-                        showSavingLoading = false,
-                        errorMessage = UIText.StringResource(R.string.notification_scheduling_failed)
-                    )
-                }
+                scheduleReminderNotification(
+                    title = "${reminder.title} - Agenda end",
+                    description = reminder.description,
+                    duration = durationStr,
+                    reminderId = (savedReminderId.toInt() * 100 + 2),
+                    localDateTime = endDateTime
+                )
             }
+
+            _state.update {
+                it.copy(
+                    showSavingLoading = false,
+                    showReminderSavedDialog = true
+                )
+            }
+
         } catch (e: MissingRequiredFieldException) {
             _state.update { it.copy(showSavingLoading = false) }
             val errorMessage = when (e) {
@@ -185,24 +237,6 @@ class AddAgendaScreenViewModel @AssistedInject constructor(
                     errorMessage = UIText.DynamicString(e.message ?: "Unknown error occurred.")
                 )
             }
-        }
-    }
-
-    private fun scheduleReminderNotification(
-        context: Context = application.applicationContext,
-        title: String,
-        reminderId: Int,
-        localDateTime: LocalDateTime
-    ) {
-        try {
-            scheduleReminder(
-                context = context,
-                localDateTime = localDateTime,
-                title = title,
-                reminderId = reminderId
-            )
-        } catch (e: Exception) {
-            throw RuntimeException("Failed to schedule notification for: $title", e)
         }
     }
 

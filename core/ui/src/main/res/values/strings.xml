@@ -14,7 +14,7 @@
     <string name="pick_date">Pick date</string>
     <string name="add_date">Add date</string>
     <string name="add_reminder">Add reminder</string>
-    <string name="remind_me_at">Remind me at</string>
+    <string name="remind_me">Remind me</string>
     <string name="add_subject">Add subject</string>
     <string name="save">Save</string>
     <string name="savingtask">Save</string>

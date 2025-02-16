@@ -79,6 +79,8 @@ sealed class AddTaskUIEvent {
     data object OnDismissErrorDialog : AddTaskUIEvent()
 
     data class OnEmailAddressChanged(val email: String) : AddTaskUIEvent()
+
     data object OnSendEmailButtonClicked : AddTaskUIEvent()
+
     data object OnDismissEmailSentDialog : AddTaskUIEvent()
 }

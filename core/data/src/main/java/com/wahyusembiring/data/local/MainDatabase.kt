@@ -13,20 +13,20 @@ import com.wahyusembiring.data.local.dao.SubjectDao
 import com.wahyusembiring.data.local.dao.TaskDao
 import com.wahyusembiring.data.local.dao.ThesisDao
 import com.wahyusembiring.data.model.entity.Exam
-import com.wahyusembiring.data.model.entity.Homework
+import com.wahyusembiring.data.model.entity.TaskThesis
 import com.wahyusembiring.data.model.entity.Lecturer
-import com.wahyusembiring.data.model.entity.Reminder
+import com.wahyusembiring.data.model.entity.Agenda
 import com.wahyusembiring.data.model.entity.Subject
-import com.wahyusembiring.data.model.entity.Task
 import com.wahyusembiring.data.model.entity.Thesis
+import com.wahyusembiring.data.model.entity.Task
 
 @Database(  // Menandai kelas ini sebagai database Room
     entities = [  // Entitas yang termasuk dalam database
-        Homework::class,
+        TaskThesis::class,
         Subject::class,
         Lecturer::class,
         Exam::class,
-        Reminder::class,
+        Agenda::class,
         Thesis::class,
         Task::class
     ],

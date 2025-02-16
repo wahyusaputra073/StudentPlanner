@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="save_reminder">Save Reminder</string>
+    <string name="save_agenda">Save Agenda</string>
     <string name="are_you_sure_you_want_to_save_this_reminder">Are you sure you want to save this reminder?</string>
-    <string name="saving_reminder">Saving Reminder...</string>
+    <string name="saving_agenda">Saving agenda...</string>
     <string name="reminder_saved">Reminder Saved</string>
+    <string name="agenda_saved">Agenda Saved</string>
     <string name="title_is_required">Title is required</string>
     <string name="date_is_required">Date is required</string>
     <string name="time_is_required">Time is required</string>
-    <string name="close_create_reminder_sheet">Close create reminder sheet</string>
+    <string name="close_create_agenda_sheet">Close create agenda sheet</string>
     <string name="reminder_title">Reminder title</string>
     <string name="save">Save</string>
     <string name="edit">Edit</string>

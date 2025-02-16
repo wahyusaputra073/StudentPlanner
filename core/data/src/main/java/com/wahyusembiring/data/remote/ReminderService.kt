@@ -4,7 +4,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.wahyusembiring.data.exception.UserIsNotSignInException
 import com.wahyusembiring.data.local.Converter
-import com.wahyusembiring.data.model.entity.Reminder
+import com.wahyusembiring.data.model.entity.Agenda
 import com.wahyusembiring.data.remote.util.USER_COLLECTION_ID
 import com.wahyusembiring.data.remote.util.toHashMap
 import com.wahyusembiring.data.remote.util.toReminder
@@ -24,7 +24,7 @@ class ReminderService @Inject constructor(  // Kelas ReminderService dengan depe
 
     private val db by lazy { Firebase.firestore }  // Lazy initialization untuk instance Firebase Firestore
 
-    suspend fun getAllReminder(): List<Reminder> {  // Fungsi untuk mengambil semua data reminder
+    suspend fun getAllReminder(): List<Agenda> {  // Fungsi untuk mengambil semua data reminder
         val user = authRepository.currentUser.first() ?: throw UserIsNotSignInException()  // Mengambil user yang sedang login, atau throw exception jika tidak ada
         val querySnapshot = db  // Mendapatkan snapshot koleksi 'reminder' untuk user tertentu
             .collection(USER_COLLECTION_ID)
@@ -33,7 +33,7 @@ class ReminderService @Inject constructor(  // Kelas ReminderService dengan depe
         return querySnapshot.documents.map { it.toReminder(converter) }  // Mengonversi setiap document menjadi objek Reminder
     }
 
-    suspend fun saveReminder(reminder: Reminder) {  // Fungsi untuk menyimpan reminder
+    suspend fun saveReminder(reminder: Agenda) {  // Fungsi untuk menyimpan reminder
         val newReminder = reminder.toHashMap(converter)  // Mengonversi objek Reminder ke HashMap
         val user = authRepository.currentUser.first() ?: throw UserIsNotSignInException()  // Mengambil user yang sedang login
         val document = db  // Mendapatkan referensi koleksi dan dokumen untuk menyimpan reminder

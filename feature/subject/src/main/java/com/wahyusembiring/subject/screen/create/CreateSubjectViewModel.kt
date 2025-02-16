@@ -54,7 +54,8 @@ class CreateSubjectViewModel @AssistedInject constructor(  // Kelas ViewModel un
                                 color = subjectWithLecturer?.subject?.color ?: Color.Unspecified,
                                 room = subjectWithLecturer?.subject?.room ?: "",
                                 description = subjectWithLecturer?.subject?.description ?: "",
-                                lecturer = subjectWithLecturer?.lecturer,
+                                primaryLecturer = subjectWithLecturer?.lecturer,  // Updated from lecturer to primaryLecturer
+                                secondaryLecturer = subjectWithLecturer?.secondaryLecturer,  // Initialize secondary lecturer as null
                             )
                         }
                     }
@@ -69,15 +70,51 @@ class CreateSubjectViewModel @AssistedInject constructor(  // Kelas ViewModel un
             is CreateSubjectScreenUIEvent.OnRoomChanged -> updateRoom(event.room)
             is CreateSubjectScreenUIEvent.OnSaveButtonClicked -> onSaveButtonClicked()
             is CreateSubjectScreenUIEvent.OnPickColorButtonClicked -> onPickColorButtonClicked()
-            is CreateSubjectScreenUIEvent.OnLecturerSelected -> onLecturerSelected(event.lecturer)
+//            is CreateSubjectScreenUIEvent.OnLecturerSelected -> onLecturerSelected(event.lecturer)
             is CreateSubjectScreenUIEvent.OnColorPicked -> onColorPicked(event.color)
             is CreateSubjectScreenUIEvent.OnColorPickerDismiss -> onColorPickerDismiss()
             is CreateSubjectScreenUIEvent.OnErrorDialogDismiss -> onErrorDialogDismiss()
             is CreateSubjectScreenUIEvent.OnSaveConfirmationDialogConfirm -> onSaveConfirmationDialogConfirm()
             is CreateSubjectScreenUIEvent.OnSaveConfirmationDialogDismiss -> onSaveConfirmationDialogDismiss()
             is CreateSubjectScreenUIEvent.OnSubjectSavedDialogDismiss -> onSubjectSavedDialogDismiss()
+
+            is CreateSubjectScreenUIEvent.OnPrimaryLecturerSelected -> onPrimaryLecturerSelected(event.lecturer)
+            is CreateSubjectScreenUIEvent.OnSecondaryLecturerSelected -> onSecondaryLecturerSelected(event.lecturer)
+            is CreateSubjectScreenUIEvent.OnLecturerRemoved -> onLecturerRemoved(event.isSecondary)
         }
     }
+
+
+//    private fun onPrimaryLecturerSelected(lecturer: Lecturer) {
+//        _state.update {
+//            it.copy(
+//                primaryLecturer = lecturer,
+//                // Clear secondary lecturer if it's the same as the new primary
+//                primaryLecturer = if (it.primaryLecturer?.id == lecturer.id) null else it.secondaryLecturer
+//            )
+//        }
+//    }
+
+    private fun onPrimaryLecturerSelected(lecturer: Lecturer) {
+        _state.update { it.copy(primaryLecturer = lecturer) }
+    }
+
+    private fun onSecondaryLecturerSelected(lecturer: Lecturer) {
+        _state.update { it.copy(secondaryLecturer = lecturer) }
+    }
+
+    private fun onLecturerRemoved(isSecondary: Boolean) {
+        _state.update {
+            if (isSecondary) {
+                it.copy(secondaryLecturer = null)
+            } else {
+                it.copy(primaryLecturer = null)
+            }
+        }
+    }
+
+
+
 
     private fun onSubjectSavedDialogDismiss() {  // Menangani penutupan dialog setelah mata kuliah disimpan
         _state.update { it.copy(showSubjectSavedDialog = false) }
@@ -99,9 +136,9 @@ class CreateSubjectViewModel @AssistedInject constructor(  // Kelas ViewModel un
         _state.update { it.copy(color = color) }
     }
 
-    private fun onLecturerSelected(lecturer: Lecturer) {  // Menangani pemilihan pengajar
-        _state.update { it.copy(lecturer = lecturer) }
-    }
+//    private fun onLecturerSelected(lecturer: Lecturer) {  // Menangani pemilihan pengajar
+//        _state.update { it.copy(lecturer = lecturer) }
+//    }
 
     private fun onPickColorButtonClicked() {  // Menangani klik tombol pemilihan warna
         _state.update { it.copy(showColorPicker = true) }
@@ -132,17 +169,19 @@ class CreateSubjectViewModel @AssistedInject constructor(  // Kelas ViewModel un
         }
     }
 
-    private suspend fun saveSubject() {  // Fungsi untuk menyimpan atau memperbarui mata kuliah
+    private suspend fun saveSubject() {
         val subject = Subject(
-            name = _state.value.name.ifBlank { throw MissingRequiredFieldException.SubjectName() },  // Validasi nama mata kuliah
+            name = _state.value.name.ifBlank { throw MissingRequiredFieldException.SubjectName() },
             color = _state.value.color,
-            room = _state.value.room.ifBlank { throw MissingRequiredFieldException.Room() },  // Validasi ruang
+            room = _state.value.room.ifBlank { throw MissingRequiredFieldException.Room() },
             description = _state.value.description,
-            lecturerId = _state.value.lecturer?.id ?: throw MissingRequiredFieldException.Lecture()  // Validasi pengajar
+            lecturerId = _state.value.primaryLecturer?.id ?: throw MissingRequiredFieldException.Lecture(),
+            secondaryLecturerId = _state.value.secondaryLecturer?.id
         )
-        if (state.value.isEditMode) {  // Jika dalam mode edit, memperbarui mata kuliah
+
+        if (state.value.isEditMode) {
             subjectRepository.updateSubject(subject.copy(id = subjectId))
-        } else {  // Jika baru, menyimpan mata kuliah baru
+        } else {
             subjectRepository.saveSubject(subject)
         }
     }
@@ -153,6 +192,7 @@ class CreateSubjectViewModel @AssistedInject constructor(  // Kelas ViewModel un
             is MissingRequiredFieldException.SubjectName -> UIText.StringResource(R.string.subject_name_is_required)  // Pesan error untuk nama
             is MissingRequiredFieldException.Room -> UIText.StringResource(R.string.room_is_required)  // Pesan error untuk ruang
             is MissingRequiredFieldException.Lecture -> UIText.StringResource(R.string.please_select_a_lecture)  // Pesan error untuk pengajar
+            is MissingRequiredFieldException.Lecture2 -> UIText.StringResource(R.string.please_select_a_lecture)
         }
         _state.update { it.copy(errorMessage = errorMessage) }
     }

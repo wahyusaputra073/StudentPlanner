@@ -6,24 +6,30 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 
-class NotificationBroadcastReceiver : BroadcastReceiver() {  // Receiver untuk menangani penerimaan notifikasi
+class NotificationBroadcastReceiver : BroadcastReceiver() {
+    override fun onReceive(context: Context?, intent: Intent?) {
+        if (context == null) return
+        if (intent == null) return
 
-    override fun onReceive(context: Context?, intent: Intent?) {  // Fungsi yang dipanggil saat notifikasi diterima
-        if (context == null) return  // Memastikan context tidak null
-        if (intent == null) return  // Memastikan intent tidak null
+        val id = intent.getIntExtra(NOTIFICATION_ID_EXTRA, 1)
+        val title = intent.getStringExtra(NOTIFICATION_TITLE_EXTRA)
+        val description = intent.getStringExtra(NOTIFICATION_DESCRIPTION_EXTRA)
+        val duration = intent.getStringExtra(NOTIFICATION_DURATION_EXTRA)
 
-        val id = intent.getIntExtra(NOTIFICATION_ID_EXTRA, 1)  // Mendapatkan ID notifikasi dari intent, default 1
-        val title = intent.getStringExtra(NOTIFICATION_TITLE_EXTRA)  // Mendapatkan judul notifikasi dari intent
+        val notificationStyle = NotificationCompat.BigTextStyle()
+            .setBigContentTitle(title)
+            .bigText("$duration\n$description")
 
-        val notification = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)  // Membuat notifikasi
-            .setSmallIcon(R.drawable.app_icon)  // Menetapkan ikon kecil untuk notifikasi
-            .setContentTitle(title)  // Menetapkan judul notifikasi
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)  // Menetapkan prioritas notifikasi
-            .build()  // Membangun objek notifikasi
+        val notification = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
+            .setSmallIcon(R.drawable.app_icon)
+            .setContentTitle(title)
+            .setStyle(notificationStyle)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .build()
 
         val notificationManager =
-            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager  // Mendapatkan sistem manajer notifikasi
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        notificationManager.notify(id, notification)  // Menampilkan notifikasi menggunakan ID yang diberikan
+        notificationManager.notify(id, notification)
     }
 }

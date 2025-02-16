@@ -1,13 +1,10 @@
 package com.wahyusembiring.task
 
 import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -18,11 +15,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.wahyusembiring.common.navigation.Screen
@@ -39,18 +33,17 @@ import com.wahyusembiring.ui.component.popup.picker.attachmentpicker.AttachmentP
 import com.wahyusembiring.ui.component.popup.picker.datepicker.DatePicker
 import com.wahyusembiring.ui.component.popup.picker.subjectpicker.SubjectPicker
 import com.wahyusembiring.ui.component.popup.picker.timepicker.DeadlineTimePicker
-import com.wahyusembiring.ui.component.popup.picker.timepicker.TimePicker
 import com.wahyusembiring.ui.component.popup.picker.timepicker.TimePickerOption
 import com.wahyusembiring.ui.theme.spacing
 
 @Composable
-fun CreateHomeworkScreen(
+fun AddTaskScreen(
     viewModel: AddTaskScreenViewModel, // ViewModel untuk mengelola state dan event
     navController: NavHostController, // Controller untuk navigasi antar layar
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle() // Mengambil state dari ViewModel secara reactive
 
-    CreateHomeworkScreen( // Komponen UI untuk halaman CreateHomeworkScreen
+    AddTaskScreen( // Komponen UI untuk halaman CreateHomeworkScreen
         modifier = Modifier, // Modifier untuk penataan tampilan
         state = state, // Menyediakan state untuk UI
         onUIEvent = viewModel::onUIEvent, // Mengirim event UI ke ViewModel
@@ -64,7 +57,7 @@ fun CreateHomeworkScreen(
 
 @OptIn(ExperimentalMaterial3Api::class) // Menandakan penggunaan API eksperimental dari Material3
 @Composable
-private fun CreateHomeworkScreen(
+private fun AddTaskScreen(
     modifier: Modifier = Modifier, // Modifier untuk pengaturan UI
     state: AddTaskScreenUIState, // State untuk mengontrol UI
     onUIEvent: (AddTaskUIEvent) -> Unit, // Fungsi untuk mengirim event ke ViewModel
@@ -88,7 +81,7 @@ private fun CreateHomeworkScreen(
                 } else {
                     stringResource(R.string.save) // Teks tombol untuk save mode
                 },
-                navigationButtonDescription = stringResource(R.string.close_add_homework_sheet) // Deskripsi untuk tombol navigasi
+                navigationButtonDescription = stringResource(R.string.close_add_task_sheet) // Deskripsi untuk tombol navigasi
             )
             Column(
                 modifier = Modifier.padding(MaterialTheme.spacing.Medium) // Padding untuk kolom form
@@ -100,20 +93,14 @@ private fun CreateHomeworkScreen(
                     leadingIcon = {
                         Icon(
                             painter = painterResource(id = com.wahyusembiring.ui.R.drawable.ic_title), // Ikon untuk judul
-                            contentDescription = stringResource(R.string.homework_title),
+                            contentDescription = stringResource(R.string.task_title),
                             tint = MaterialTheme.colorScheme.primary
                         )
                     },
                     singleLine = true, // Membatasi input hanya satu baris
-                    value = state.homeworkTitle, // Nilai untuk judul tugas
+                    value = state.taskTitle, // Nilai untuk judul tugas
                     onValueChange = { onUIEvent(AddTaskUIEvent.OnHomeworkTitleChanged(it)) }, // Mengubah judul tugas
                 )
-
-
-
-
-
-
 
                 // Tombol untuk memilih tanggal tugas
                 AddDateButton(
@@ -157,26 +144,26 @@ private fun CreateHomeworkScreen(
                 )
 
 
-                OutlinedTextField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = MaterialTheme.spacing.Medium),
-                    label = { Text(text = "Email Address") },
-//                    leadingIcon = {
-//                        Icon(
-//                            painter = painterResource(id = com.wahyusembiring.ui.R.drawable.ic_email),
-//                            contentDescription = "Email",
-//                            tint = MaterialTheme.colorScheme.primary
-//                        )
-//                    },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Email,
-                        imeAction = ImeAction.Done
-                    ),
-                    value = state.emailAddress,
-                    onValueChange = { onUIEvent(AddTaskUIEvent.OnEmailAddressChanged(it)) }
-                )
+//                OutlinedTextField(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .padding(top = MaterialTheme.spacing.Medium),
+//                    label = { Text(text = "Email Address") },
+////                    leadingIcon = {
+////                        Icon(
+////                            painter = painterResource(id = com.wahyusembiring.ui.R.drawable.ic_email),
+////                            contentDescription = "Email",
+////                            tint = MaterialTheme.colorScheme.primary
+////                        )
+////                    },
+//                    singleLine = true,
+//                    keyboardOptions = KeyboardOptions(
+//                        keyboardType = KeyboardType.Email,
+//                        imeAction = ImeAction.Done
+//                    ),
+//                    value = state.emailAddress,
+//                    onValueChange = { onUIEvent(AddTaskUIEvent.OnEmailAddressChanged(it)) }
+//                )
 
                 Button(
                     modifier = Modifier
@@ -198,7 +185,7 @@ private fun CreateHomeworkScreen(
     // Dialog konfirmasi untuk menyimpan tugas
     if (state.showSaveConfirmationDialog) {
         ConfirmationAlertDialog(
-            title = stringResource(id = R.string.save_homework),
+            title = stringResource(id = R.string.save_task),
             message = stringResource(id = R.string.are_you_sure_you_want_to_save_this_task),
             positiveButtonText = stringResource(id = R.string.save),
             onPositiveButtonClick = {
@@ -219,7 +206,7 @@ private fun CreateHomeworkScreen(
     if (state.showHomeworkSavedDialog) {
         InformationAlertDialog(
             title = stringResource(id = R.string.success),
-            message = stringResource(id = R.string.homework_saved),
+            message = stringResource(id = R.string.task_saved),
             buttonText = stringResource(id = R.string.ok),
             onButtonClicked = {
                 onUIEvent(AddTaskUIEvent.OnDismissHomeworkSavedDialog) // Menutup dialog
@@ -287,19 +274,18 @@ private fun CreateHomeworkScreen(
             }
         )
     }
-
-    // Email Sent Dialog
-    if (state.showEmailSentDialog) {
-        InformationAlertDialog(
-            title = "Success",
-            message = "Email has been sent successfully",
-            buttonText = "OK",
-            onButtonClicked = {
-                onUIEvent(AddTaskUIEvent.OnDismissEmailSentDialog)
-            },
-            onDismissRequest = {
-                onUIEvent(AddTaskUIEvent.OnDismissEmailSentDialog)
-            }
-        )
-    }
+//    // Email Sent Dialog
+//    if (state.showEmailSentDialog) {
+//        InformationAlertDialog(
+//            title = "Success",
+//            message = "Email has been sent successfully",
+//            buttonText = "OK",
+//            onButtonClicked = {
+//                onUIEvent(AddTaskUIEvent.OnDismissEmailSentDialog)
+//            },
+//            onDismissRequest = {
+//                onUIEvent(AddTaskUIEvent.OnDismissEmailSentDialog)
+//            }
+//        )
+//    }
 }

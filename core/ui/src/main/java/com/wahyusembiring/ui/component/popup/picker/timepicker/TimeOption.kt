@@ -35,7 +35,6 @@ fun TimePickerOption(
 ) {
     // Options for reminder time (negative values indicate time before deadline)
     val timeOptions = listOf(
-        "1 minute before" to Time(hour = 0, minute = -1),
         "5 minutes before" to Time(hour = 0, minute = -5),
         "10 minutes before" to Time(hour = 0, minute = -10),
         "15 minutes before" to Time(hour = 0, minute = -15),

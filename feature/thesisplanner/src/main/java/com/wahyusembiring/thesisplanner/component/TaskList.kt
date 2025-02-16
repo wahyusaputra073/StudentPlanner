@@ -22,7 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
-import com.wahyusembiring.data.model.entity.Task
+import com.wahyusembiring.data.model.entity.TaskThesis
 import com.wahyusembiring.datetime.Moment
 import com.wahyusembiring.datetime.formatter.FormattingStyle
 import com.wahyusembiring.thesisplanner.R
@@ -30,16 +30,16 @@ import com.wahyusembiring.thesisplanner.R
 
 @Composable
 internal fun TaskList(
-    tasks: List<Task>, // Daftar task yang akan ditampilkan
-    onCompletedStatusChange: (Task, Boolean) -> Unit, // Fungsi callback untuk mengubah status tugas (selesai/tidak)
-    onDeleteTaskClick: (Task) -> Unit // Fungsi callback untuk menghapus task
+    taskTheses: List<TaskThesis>, // Daftar task yang akan ditampilkan
+    onCompletedStatusChange: (TaskThesis, Boolean) -> Unit, // Fungsi callback untuk mengubah status tugas (selesai/tidak)
+    onDeleteTaskClick: (TaskThesis) -> Unit // Fungsi callback untuk menghapus task
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxWidth(), // Menyusun daftar task secara vertikal dengan lebar penuh
         horizontalAlignment = Alignment.CenterHorizontally // Menyelaraskan item secara horizontal di tengah
     ) {
         items(
-            items = tasks, // Item yang akan ditampilkan adalah daftar task
+            items = taskTheses, // Item yang akan ditampilkan adalah daftar task
             key = { it.id } // Setiap item memiliki key unik berdasarkan ID
         ) { task -> // Setiap task akan dirender di dalam item list
             var moreOptionExpanded by remember { mutableStateOf(false) } // State untuk mengatur dropdown menu

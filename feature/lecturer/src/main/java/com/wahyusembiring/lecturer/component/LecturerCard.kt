@@ -80,13 +80,14 @@ fun LecturerCard(
             Text(text = lecturerWithSubjects.lecturer.name)
         },
         supportingContent = {
-            // Menampilkan mata kuliah yang diajar atau pesan jika tidak ada mata kuliah
             Text(
-                maxLines = 1, // Hanya satu baris teks
-                overflow = TextOverflow.Ellipsis, // Memotong teks jika terlalu panjang
-                text = lecturerWithSubjects.subjects.joinToString { it.name }.ifBlank {
-                    stringResource(R.string.no_subject_added) // Tampilkan pesan jika tidak ada mata kuliah
-                }
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                text = (lecturerWithSubjects.primarySubjects + lecturerWithSubjects.secondarySubjects)
+                    .joinToString { it.name }
+                    .ifBlank {
+                        stringResource(R.string.no_subject_added)
+                    }
             )
         },
         trailingContent = {
@@ -119,6 +120,3 @@ fun LecturerCard(
         }
     )
 }
-
-
-

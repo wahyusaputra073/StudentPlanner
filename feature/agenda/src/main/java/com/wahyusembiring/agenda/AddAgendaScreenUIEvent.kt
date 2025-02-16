@@ -74,4 +74,11 @@ sealed class AddAgendaScreenUIEvent {
     // Event ketika DurationPicker ditutup tanpa memilih durasi waktu
     data object OnDurationTimePickerDismiss : AddAgendaScreenUIEvent()
 
+
+    data class OnEmailAddressChanged(val email: String) : AddAgendaScreenUIEvent()
+
+    data object OnSendEmailButtonClicked : AddAgendaScreenUIEvent()
+
+    data object OnDismissEmailSentDialog : AddAgendaScreenUIEvent()
+
 }

@@ -2,16 +2,11 @@ package com.wahyusembiring.data.repository.implementation
 
 import com.wahyusembiring.data.local.dao.TaskDao
 import com.wahyusembiring.data.local.dao.ThesisDao
-import com.wahyusembiring.data.model.entity.Task
+import com.wahyusembiring.data.model.entity.TaskThesis
 import com.wahyusembiring.data.model.entity.Thesis
 import com.wahyusembiring.data.model.ThesisWithTask
-import com.wahyusembiring.data.remote.ThesisService
 import com.wahyusembiring.data.repository.ThesisRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class ThesisRepositoryImpl @Inject constructor(
@@ -50,17 +45,17 @@ class ThesisRepositoryImpl @Inject constructor(
     }
 
     // Menyimpan tugas baru yang terkait dengan tesis
-    override suspend fun addNewTask(task: Task): Long {
-        return taskDao.insertTask(task)  // Menyimpan tugas baru
+    override suspend fun addNewTask(taskThesis: TaskThesis): Long {
+        return taskDao.insertTask(taskThesis)  // Menyimpan tugas baru
     }
 
     // Menghapus tugas yang terkait dengan tesis
-    override suspend fun deleteTask(task: Task) {
-        taskDao.deleteTask(task)  // Menghapus tugas dari database
+    override suspend fun deleteTask(taskThesis: TaskThesis) {
+        taskDao.deleteTask(taskThesis)  // Menghapus tugas dari database
     }
 
     // Mengubah status tugas apakah sudah selesai atau belum
-    override suspend fun changeTaskCompletedStatus(task: Task, isCompleted: Boolean) {
-        taskDao.updateTask(task.copy(isCompleted = isCompleted))  // Memperbarui status tugas
+    override suspend fun changeTaskCompletedStatus(taskThesis: TaskThesis, isCompleted: Boolean) {
+        taskDao.updateTask(taskThesis.copy(isCompleted = isCompleted))  // Memperbarui status tugas
     }
 }

@@ -7,29 +7,33 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
 @Entity(
-    tableName = "subject",  // Menandakan bahwa kelas Subject akan dipetakan ke tabel "subject" di dalam database Room.
+    tableName = "subject",
     foreignKeys = [
-        ForeignKey(  // Menentukan relasi antara tabel subject dan lecturer melalui foreign key.
-            entity = Lecturer::class,  // Entitas Lecturer yang menjadi referensi.
-            parentColumns = ["id"],  // Kolom "id" pada tabel Lecturer menjadi kolom induk (parent).
-            childColumns = ["lecturer_id"],  // Kolom "lecturer_id" pada tabel Subject menjadi kolom anak (child).
-            onDelete = ForeignKey.CASCADE,  // Jika entitas Lecturer dihapus, maka entitas Subject yang terkait juga akan dihapus.
-            onUpdate = ForeignKey.CASCADE  // Jika entitas Lecturer diperbarui, maka entitas Subject yang terkait juga akan diperbarui.
+        ForeignKey(
+            entity = Lecturer::class,
+            parentColumns = ["id"],
+            childColumns = ["lecturer_id"],
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = Lecturer::class,
+            parentColumns = ["id"],
+            childColumns = ["secondary_lecturer_id"],
+            onDelete = ForeignKey.SET_NULL,
+            onUpdate = ForeignKey.CASCADE
         )
     ]
 )
 data class Subject(
-    @PrimaryKey(autoGenerate = true)  // Menandakan bahwa "id" adalah primary key dan nilainya akan otomatis di-generate oleh Room.
-    val id: Int = 0,  // ID unik untuk setiap mata pelajaran, defaultnya adalah 0.
-
-    val name: String,  // Nama dari mata pelajaran.
-
-    val color: Color,  // Warna yang terkait dengan mata pelajaran, disimpan sebagai objek Color.
-
-    val room: String,  // Ruang tempat pelajaran tersebut dilaksanakan.
-
-    @ColumnInfo("lecturer_id")  // Menentukan nama kolom yang akan digunakan untuk foreign key pada tabel Subject.
-    val lecturerId: Int,  // ID dari dosen yang mengajar mata pelajaran ini, yang terhubung ke tabel Lecturer.
-
-    val description: String,  // Deskripsi mata pelajaran untuk memberikan detail lebih lanjut.
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
+    val name: String,
+    val color: Color,
+    val room: String,
+    @ColumnInfo("lecturer_id")
+    val lecturerId: Int,
+    @ColumnInfo("secondary_lecturer_id")
+    val secondaryLecturerId: Int? = null,
+    val description: String,
 )

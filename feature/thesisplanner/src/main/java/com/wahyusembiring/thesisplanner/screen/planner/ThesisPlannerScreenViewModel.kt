@@ -1,20 +1,16 @@
 package com.wahyusembiring.thesisplanner.screen.planner
 
-import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wahyusembiring.common.util.launch
 import com.wahyusembiring.data.model.File
 import com.wahyusembiring.data.model.ThesisWithTask
-import com.wahyusembiring.data.model.entity.Task
-import com.wahyusembiring.data.model.entity.Thesis
+import com.wahyusembiring.data.model.entity.TaskThesis
 import com.wahyusembiring.data.repository.ThesisRepository
-import com.wahyusembiring.ui.util.UIText
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import com.wahyusembiring.thesisplanner.R
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -49,7 +45,7 @@ class ThesisPlannerScreenViewModel @AssistedInject constructor( // ViewModel unt
                         thesisTitle = thesis.thesis.title, // Mengupdate judul tesis
                         editedThesisTitle = thesis.thesis.title, // Mengupdate judul tesis yang sedang diedit
                         articles = thesis.thesis.articles, // Mengupdate daftar artikel tesis
-                        tasks = thesis.tasks // Mengupdate daftar tugas terkait tesis
+                        taskTheses = thesis.taskTheses // Mengupdate daftar tugas terkait tesis
                     )
                 }
             }
@@ -69,10 +65,10 @@ class ThesisPlannerScreenViewModel @AssistedInject constructor( // ViewModel unt
             is ThesisPlannerScreenUIEvent.OnDocumentPickerResult -> onDocumentPickerResult(event.files) // Menangani hasil pemilihan dokumen
             is ThesisPlannerScreenUIEvent.OnThesisTitleChange -> onThesisTitleChange(event.thesisName) // Menangani perubahan judul tesis
             is ThesisPlannerScreenUIEvent.OnSaveTaskClick -> launch { // Menangani penyimpanan tugas baru
-                onSaveTaskClick(event.task) // Memanggil fungsi untuk menyimpan tugas
+                onSaveTaskClick(event.taskThesis) // Memanggil fungsi untuk menyimpan tugas
             }
             is ThesisPlannerScreenUIEvent.OnTaskCompletedStatusChange -> launch { // Menangani perubahan status tugas (selesai/tidak)
-                onTaskCompletedStatusChange(event.task, event.isCompleted) // Memanggil fungsi untuk memperbarui status tugas
+                onTaskCompletedStatusChange(event.taskThesis, event.isCompleted) // Memanggil fungsi untuk memperbarui status tugas
             }
             is ThesisPlannerScreenUIEvent.OnArticleDeleteDialogDismiss -> onArticleDeleteDialogDismiss() // Menangani penutupan dialog konfirmasi penghapusan artikel
             is ThesisPlannerScreenUIEvent.OnCreateTaskButtonClick -> onCreateTaskButtonClick() // Menangani klik tombol untuk membuat tugas baru
@@ -80,26 +76,26 @@ class ThesisPlannerScreenViewModel @AssistedInject constructor( // ViewModel unt
             is ThesisPlannerScreenUIEvent.OnDatePickerButtonClick -> onDatePickerButtonClick() // Menangani klik tombol untuk memilih tanggal
             is ThesisPlannerScreenUIEvent.OnDatePickerDismiss -> onDatePickerDismiss() // Menangani penutupan dialog pemilih tanggal
             is ThesisPlannerScreenUIEvent.OnDeleteArticleConfirm -> onDeleteArticleConfirm(event.article) // Menangani konfirmasi penghapusan artikel
-            is ThesisPlannerScreenUIEvent.OnDeleteTaskClick -> onDeleteTaskClick(event.task) // Menangani klik penghapusan tugas
-            is ThesisPlannerScreenUIEvent.OnTaskDeleteConfirm -> onTaskDeleteConfirm(event.task) // Menangani konfirmasi penghapusan tugas
+            is ThesisPlannerScreenUIEvent.OnDeleteTaskClick -> onDeleteTaskClick(event.taskThesis) // Menangani klik penghapusan tugas
+            is ThesisPlannerScreenUIEvent.OnTaskDeleteConfirm -> onTaskDeleteConfirm(event.taskThesis) // Menangani konfirmasi penghapusan tugas
             is ThesisPlannerScreenUIEvent.OnTaskDeleteDialogDismiss -> onTaskDeleteDialogDismiss() // Menangani penutupan dialog konfirmasi penghapusan tugas
         }
     }
 
 
     private fun onTaskDeleteDialogDismiss() { // Menangani penutupan dialog konfirmasi penghapusan tugas
-        _uiState.update { it.copy(taskPendingDelete = null) } // Menghapus tugas yang tertunda untuk dihapus dari UI state
+        _uiState.update { it.copy(taskThesisPendingDelete = null) } // Menghapus tugas yang tertunda untuk dihapus dari UI state
     }
 
-    private fun onTaskDeleteConfirm(task: Task) { // Menangani konfirmasi penghapusan tugas
+    private fun onTaskDeleteConfirm(taskThesis: TaskThesis) { // Menangani konfirmasi penghapusan tugas
         viewModelScope.launch {
-            thesisRepository.deleteTask(task) // Memanggil repository untuk menghapus tugas dari database
+            thesisRepository.deleteTask(taskThesis) // Memanggil repository untuk menghapus tugas dari database
         }
     }
 
-    private fun onDeleteTaskClick(task: Task) { // Menangani klik penghapusan tugas
+    private fun onDeleteTaskClick(taskThesis: TaskThesis) { // Menangani klik penghapusan tugas
         _uiState.update {
-            it.copy(taskPendingDelete = task) // Menyimpan tugas yang akan dihapus di UI state
+            it.copy(taskThesisPendingDelete = taskThesis) // Menyimpan tugas yang akan dihapus di UI state
         }
     }
 
@@ -137,12 +133,12 @@ class ThesisPlannerScreenViewModel @AssistedInject constructor( // ViewModel unt
         // Implementasi untuk menanggapi klik artikel dapat ditambahkan di sini
     }
 
-    private suspend fun onTaskCompletedStatusChange(task: Task, completed: Boolean) { // Menangani perubahan status tugas selesai
-        thesisRepository.changeTaskCompletedStatus(task, completed) // Memperbarui status tugas di repository
+    private suspend fun onTaskCompletedStatusChange(taskThesis: TaskThesis, completed: Boolean) { // Menangani perubahan status tugas selesai
+        thesisRepository.changeTaskCompletedStatus(taskThesis, completed) // Memperbarui status tugas di repository
     }
 
-    private suspend fun onSaveTaskClick(task: Task) { // Menangani klik simpan tugas
-        val updatedTask = task.copy(thesisId = thesisId) // Menyalin tugas dengan menambahkan thesisId
+    private suspend fun onSaveTaskClick(taskThesis: TaskThesis) { // Menangani klik simpan tugas
+        val updatedTask = taskThesis.copy(thesisId = thesisId) // Menyalin tugas dengan menambahkan thesisId
         thesisRepository.addNewTask(updatedTask) // Menambahkan tugas baru ke repository
     }
 

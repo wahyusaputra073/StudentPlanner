@@ -6,25 +6,25 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.wahyusembiring.data.model.entity.Task
+import com.wahyusembiring.data.model.entity.TaskThesis
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TaskDao {
 
-    @Query("SELECT * FROM task")
-    fun getAllTasks(): Flow<List<Task>>
+    @Query("SELECT * FROM thesis_task")
+    fun getAllTasks(): Flow<List<TaskThesis>>
 
-    @Insert(entity = Task::class)
-    suspend fun insertTask(task: Task): Long
+    @Insert(entity = TaskThesis::class)
+    suspend fun insertTask(taskThesis: TaskThesis): Long
 
-    @Insert(entity = Task::class, onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertTask(tasks: List<Task>): List<Long>
+    @Insert(entity = TaskThesis::class, onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertTask(taskTheses: List<TaskThesis>): List<Long>
 
-    @Update(entity = Task::class)
-    suspend fun updateTask(task: Task)
+    @Update(entity = TaskThesis::class)
+    suspend fun updateTask(taskThesis: TaskThesis)
 
-    @Delete(entity = Task::class)
-    suspend fun deleteTask(task: Task)
+    @Delete(entity = TaskThesis::class)
+    suspend fun deleteTask(taskThesis: TaskThesis)
 
 }

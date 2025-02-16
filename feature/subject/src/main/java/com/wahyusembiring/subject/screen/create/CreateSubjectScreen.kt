@@ -1,6 +1,7 @@
 package com.wahyusembiring.subject.screen.create
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -30,50 +33,45 @@ import com.wahyusembiring.subject.R
 import com.wahyusembiring.ui.component.button.ChooseColorButton
 import com.wahyusembiring.ui.component.dropdown.Dropdown
 import com.wahyusembiring.ui.component.popup.alertdialog.confirmation.ConfirmationAlertDialog
+import com.wahyusembiring.ui.component.popup.alertdialog.error.ErrorAlertDialog
 import com.wahyusembiring.ui.component.popup.alertdialog.information.InformationAlertDialog
 import com.wahyusembiring.ui.component.popup.alertdialog.loading.LoadingAlertDialog
 import com.wahyusembiring.ui.component.popup.picker.colorpicker.ColorPicker
 import com.wahyusembiring.ui.theme.spacing
 import com.wahyusembiring.ui.util.UIText
 
-
 @Composable
 fun CreateSubjectScreen(
-    viewModel: CreateSubjectViewModel,  // ViewModel untuk mengelola state dan event
-    navController: NavHostController     // Navigator untuk berpindah antar screen
+    viewModel: CreateSubjectViewModel,
+    navController: NavHostController
 ) {
-    // Mengambil state terbaru dari ViewModel menggunakan collectAsStateWithLifecycle
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    // Tampilan UI untuk CreateSubjectScreen
     CreateSubjectScreen(
-        modifier = Modifier.fillMaxSize(),  // Mengatur ukuran tampilan agar mengisi penuh
-        state = state,  // Menyediakan state saat ini untuk tampilan
-        onUIEvent = viewModel::onUIEvent,  // Menangani event UI dengan ViewModel
-        onNavigateUp = {  // Aksi untuk kembali ke layar sebelumnya
+        modifier = Modifier.fillMaxSize(),
+        state = state,
+        onUIEvent = viewModel::onUIEvent,
+        onNavigateUp = {
             navController.navigateUp()
         },
-        onNavigateToCreateLecturer = {  // Aksi untuk navigasi ke layar pembuatan dosen
+        onNavigateToCreateLecturer = {
             navController.navigate(Screen.AddLecturer())
         }
     )
 }
 
-
 @Composable
 private fun CreateSubjectScreen(
-    modifier: Modifier = Modifier,  // Modifier untuk menyesuaikan gaya tampilan
-    state: CreateSubjectScreenUIState,  // State yang berisi data UI terkini
-    onUIEvent: (CreateSubjectScreenUIEvent) -> Unit,  // Fungsi untuk menangani event UI
-    onNavigateUp: () -> Unit,  // Fungsi untuk kembali ke layar sebelumnya
-    onNavigateToCreateLecturer: () -> Unit,  // Fungsi untuk navigasi ke layar pembuatan dosen
+    modifier: Modifier = Modifier,
+    state: CreateSubjectScreenUIState,
+    onUIEvent: (CreateSubjectScreenUIEvent) -> Unit,
+    onNavigateUp: () -> Unit,
+    onNavigateToCreateLecturer: () -> Unit,
 ) {
-    // Scaffold untuk menyediakan layout dasar dengan padding
     Scaffold { paddingValues ->
         Column(
-            modifier = modifier.padding(paddingValues)  // Menambahkan padding untuk kolom
+            modifier = modifier.padding(paddingValues)
         ) {
-            // Header dengan tombol kembali dan simpan
             BackAndSaveHeader(
                 onBackButtonClicked = onNavigateUp,
                 onSaveButtonClicked = {
@@ -81,17 +79,16 @@ private fun CreateSubjectScreen(
                 }
             )
 
-            // Kolom utama yang berisi form input
             Column(
                 modifier = Modifier
-                    .fillMaxSize()  // Mengisi ukuran penuh
-                    .padding(MaterialTheme.spacing.Medium)  // Padding dengan jarak menengah
+                    .fillMaxSize()
+                    .padding(MaterialTheme.spacing.Medium)
             ) {
-                // Input untuk nama subject
+                // Subject Name Field
                 OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),  // Memenuhi lebar penuh
-                    label = { Text(text = stringResource(R.string.subject_name)) },  // Label nama subject
-                    leadingIcon = {  // Ikon di depan input
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text(text = stringResource(R.string.subject_name)) },
+                    leadingIcon = {
                         Icon(
                             painter = painterResource(id = com.wahyusembiring.ui.R.drawable.ic_title),
                             contentDescription = stringResource(R.string.subject_name),
@@ -99,85 +96,123 @@ private fun CreateSubjectScreen(
                         )
                     },
                     singleLine = true,
-                    value = state.name,  // Nilai input subject
-                    onValueChange = { onUIEvent(CreateSubjectScreenUIEvent.OnSubjectNameChanged(it)) },  // Mengubah nilai input
+                    value = state.name,
+                    onValueChange = { onUIEvent(CreateSubjectScreenUIEvent.OnSubjectNameChanged(it)) },
                 )
 
-                // Input untuk nama ruang
+                // Room Field
                 OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),  // Memenuhi lebar penuh
-                    leadingIcon = {  // Ikon di depan input
+                    modifier = Modifier.fillMaxWidth(),
+                    leadingIcon = {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_location),
                             contentDescription = stringResource(R.string.room),
                             tint = MaterialTheme.colorScheme.primary
                         )
                     },
-                    placeholder = { Text(text = stringResource(R.string.room)) },  // Placeholder untuk ruang
+                    placeholder = { Text(text = stringResource(R.string.room)) },
                     singleLine = true,
-                    value = state.room,  // Nilai input ruang
-                    onValueChange = { onUIEvent(CreateSubjectScreenUIEvent.OnRoomChanged(it)) },  // Mengubah nilai input
+                    value = state.room,
+                    onValueChange = { onUIEvent(CreateSubjectScreenUIEvent.OnRoomChanged(it)) },
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color.Transparent,  // Border transparan saat fokus
-                        unfocusedBorderColor = Color.Transparent  // Border transparan saat tidak fokus
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedBorderColor = Color.Transparent
                     )
                 )
 
-                // Tombol untuk memilih warna
+                // Color Picker Button
                 ChooseColorButton(
-                    color = state.color,  // Warna yang dipilih
-                    onClick = { onUIEvent(CreateSubjectScreenUIEvent.OnPickColorButtonClicked) }  // Aksi untuk memilih warna
+                    color = state.color,
+                    onClick = { onUIEvent(CreateSubjectScreenUIEvent.OnPickColorButtonClicked) }
                 )
 
-                // Dropdown untuk memilih dosen
-                Dropdown(
-                    items = state.lecturers,  // Daftar dosen
-                    title = {
-                        if (it?.name != null) {
-                            UIText.DynamicString(it.name)  // Menampilkan nama dosen
-                        } else {
-                            UIText.StringResource(R.string.there_are_no_lecturer_selected)  // Pesan jika belum memilih dosen
-                        }
-                    },
-                    selected = state.lecturer,  // Dosen yang dipilih
-                    onItemClick = { onUIEvent(CreateSubjectScreenUIEvent.OnLecturerSelected(it)) },  // Aksi saat memilih dosen
-                    emptyContent = {  // Konten saat tidak ada dosen yang tersedia
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(MaterialTheme.spacing.Medium),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(text = stringResource(R.string.there_are_no_lecturer_avaliable))  // Pesan jika tidak ada dosen
-                            Spacer(modifier = Modifier.height(MaterialTheme.spacing.Small))  // Spasi kecil
-                            Button(
-                                onClick = onNavigateToCreateLecturer  // Navigasi untuk menambah dosen baru
-                            ) {
-                                Text(text = stringResource(R.string.add_new_lecturer))
+                Spacer(modifier = Modifier.height(MaterialTheme.spacing.Medium))
+
+                // Primary Lecturer Dropdown
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    Dropdown(
+                        items = state.lecturers,
+                        title = {
+                            if (it?.name != null) {
+                                UIText.DynamicString(it.name)
+                            } else {
+                                UIText.StringResource(R.string.select_primary_lecturer)
                             }
+                        },
+                        selected = state.primaryLecturer,
+                        onItemClick = { onUIEvent(CreateSubjectScreenUIEvent.OnPrimaryLecturerSelected(it)) },
+                        emptyContent = {
+                            LecturerEmptyContent(onNavigateToCreateLecturer)
+                        }
+                    )
+
+                    if (state.primaryLecturer != null) {
+                        IconButton(
+                            modifier = Modifier.align(Alignment.CenterEnd),
+                            onClick = { onUIEvent(CreateSubjectScreenUIEvent.OnLecturerRemoved(false)) }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = stringResource(R.string.remove_lecturer),
+                                tint = MaterialTheme.colorScheme.error
+                            )
                         }
                     }
-                )
+                }
+
+                Spacer(modifier = Modifier.height(MaterialTheme.spacing.Medium))
+
+
+                // Secondary Lecturer Dropdown
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    Dropdown(
+                        items = state.lecturers,
+                        title = {
+                            if (it?.name != null) {
+                                UIText.DynamicString(it.name)
+                            } else {
+                                UIText.StringResource(R.string.select_secondary_lecturer)
+                            }
+                        },
+                        selected = state.secondaryLecturer,
+                        onItemClick = { onUIEvent(CreateSubjectScreenUIEvent.OnSecondaryLecturerSelected(it)) },
+                        emptyContent = {
+                            LecturerEmptyContent(onNavigateToCreateLecturer)
+                        }
+                    )
+
+                    if (state.secondaryLecturer != null) {
+                        IconButton(
+                            modifier = Modifier.align(Alignment.CenterEnd),
+                            onClick = { onUIEvent(CreateSubjectScreenUIEvent.OnLecturerRemoved(true)) }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = stringResource(R.string.remove_lecturer),
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    }
+                }
             }
         }
     }
 
-    // Dialog pemilihan warna jika diaktifkan
+    // Color Picker Dialog
     if (state.showColorPicker) {
         ColorPicker(
-            initialColor = state.color,  // Warna awal
-            onDismissRequest = { onUIEvent(CreateSubjectScreenUIEvent.OnColorPickerDismiss) },  // Aksi saat dialog ditutup
-            onColorConfirmed = { onUIEvent(CreateSubjectScreenUIEvent.OnColorPicked(it)) }  // Aksi saat warna dipilih
+            initialColor = state.color,
+            onDismissRequest = { onUIEvent(CreateSubjectScreenUIEvent.OnColorPickerDismiss) },
+            onColorConfirmed = { onUIEvent(CreateSubjectScreenUIEvent.OnColorPicked(it)) }
         )
     }
 
-    // Dialog loading saat penyimpanan
+    // Loading Dialog
     if (state.showSavingLoading) {
         LoadingAlertDialog(message = stringResource(R.string.saving))
     }
 
-    // Dialog konfirmasi penyimpanan subject
+    // Save Confirmation Dialog
     if (state.showSaveConfirmationDialog) {
         ConfirmationAlertDialog(
             title = stringResource(R.string.save_subject),
@@ -196,7 +231,7 @@ private fun CreateSubjectScreen(
         )
     }
 
-    // Dialog informasi saat subject berhasil disimpan
+    // Success Dialog
     if (state.showSubjectSavedDialog) {
         InformationAlertDialog(
             title = stringResource(R.string.success),
@@ -212,32 +247,61 @@ private fun CreateSubjectScreen(
             },
         )
     }
-}
 
+    if (state.errorMessage != null) {
+        ErrorAlertDialog(
+            message = state.errorMessage.asString(),
+            buttonText = stringResource(R.string.ok),
+            onButtonClicked = {
+                onUIEvent(CreateSubjectScreenUIEvent.OnErrorDialogDismiss)
+            },
+            onDismissRequest = {
+                onUIEvent(CreateSubjectScreenUIEvent.OnErrorDialogDismiss)
+            }
+        )
+    }
+}
 
 @Composable
 private fun BackAndSaveHeader(
-    onBackButtonClicked: () -> Unit,  // Parameter untuk aksi ketika tombol kembali ditekan
-    onSaveButtonClicked: () -> Unit   // Parameter untuk aksi ketika tombol simpan ditekan
+    onBackButtonClicked: () -> Unit,
+    onSaveButtonClicked: () -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),  // Mengatur agar Row memenuhi lebar layar
-        horizontalArrangement = Arrangement.SpaceBetween,  // Memberikan jarak antara elemen di dalam Row
-        verticalAlignment = Alignment.CenterVertically  // Menyelaraskan elemen secara vertikal di tengah
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(
-            onClick = onBackButtonClicked  // Menangani aksi klik pada tombol kembali
+            onClick = onBackButtonClicked
         ) {
             Icon(
-                painter = painterResource(R.drawable.ic_back_arrow),  // Menggunakan ikon panah kembali
-                contentDescription = stringResource(R.string.back)  // Deskripsi untuk aksesibilitas tombol kembali
+                painter = painterResource(R.drawable.ic_back_arrow),
+                contentDescription = stringResource(R.string.back)
             )
         }
         Button(
-            modifier = Modifier.padding(end = MaterialTheme.spacing.Medium),  // Memberikan padding di sisi kanan tombol
-            onClick = onSaveButtonClicked  // Menangani aksi klik pada tombol simpan
+            modifier = Modifier.padding(end = MaterialTheme.spacing.Medium),
+            onClick = onSaveButtonClicked
         ) {
-            Text(text = stringResource(id = R.string.save))  // Menampilkan teks "Simpan" pada tombol
+            Text(text = stringResource(id = R.string.save))
+        }
+    }
+}
+
+@Composable
+private fun LecturerEmptyContent(onNavigateToCreateLecturer: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(MaterialTheme.spacing.Medium),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = stringResource(R.string.there_are_no_lecturer_avaliable))
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.Small))
+        Button(onClick = onNavigateToCreateLecturer) {
+            Text(text = stringResource(R.string.add_new_lecturer))
         }
     }
 }

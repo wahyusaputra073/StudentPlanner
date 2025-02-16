@@ -58,7 +58,7 @@ class MainRepositoryImpl @Inject constructor(  // Implementasi dari MainReposito
 
             val thesisWithTask = thesisService.getAllThesisWithTask()
             thesisDao.insertThesis(thesisWithTask.map { it.thesis })
-            taskDao.insertTask(thesisWithTask.flatMap { it.tasks })
+            taskDao.insertTask(thesisWithTask.flatMap { it.taskTheses })
 
             emit(Result.Success(Unit))  // Proses berhasil
         } catch (thr: Throwable) {  // Menangani kesalahan

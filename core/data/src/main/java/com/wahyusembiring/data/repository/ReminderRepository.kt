@@ -1,6 +1,6 @@
 package com.wahyusembiring.data.repository
 
-import com.wahyusembiring.data.model.entity.Reminder
+import com.wahyusembiring.data.model.entity.Agenda
 import kotlinx.coroutines.flow.Flow
 
 // Mendeklarasikan interface ReminderRepository yang berfungsi untuk mengelola data pengingat (reminder)
@@ -11,18 +11,18 @@ interface ReminderRepository {
     fun getAllReminder(
         minDate: Long? = null, // Tanggal minimal (opsional)
         maxDate: Long? = null  // Tanggal maksimal (opsional)
-    ): Flow<List<Reminder>>
+    ): Flow<List<Agenda>>
 
     // Mendeklarasikan fungsi untuk mengambil pengingat berdasarkan ID dalam bentuk Flow yang berisi objek Reminder atau null
-    fun getReminderById(id: Int): Flow<Reminder?>
+    fun getReminderById(id: Int): Flow<Agenda?>
 
     // Fungsi suspend untuk menyimpan data pengingat dan mengembalikan ID pengingat yang disimpan
-    suspend fun saveReminder(reminder: Reminder): Long
+    suspend fun saveReminder(reminder: Agenda): Long
 
     // Fungsi suspend untuk memperbarui data pengingat
-    suspend fun updateReminder(reminder: Reminder)
+    suspend fun updateReminder(reminder: Agenda)
 
     // Fungsi suspend untuk menghapus data pengingat
-    suspend fun deleteReminder(reminder: Reminder)
+    suspend fun deleteReminder(reminder: Agenda)
 
 }

@@ -4,60 +4,44 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
+import com.wahyusembiring.data.model.Attachment
+import com.wahyusembiring.data.model.DeadlineTime
+import com.wahyusembiring.data.model.Time
 import java.util.Date
 
-@Entity(
-    tableName = "task",  // Menandakan bahwa kelas Task akan dipetakan ke tabel "task" dalam database Room.
-    foreignKeys = [
-        ForeignKey(  // Menentukan relasi antara tabel task dan thesis melalui foreign key.
-            entity = Thesis::class,  // Entitas Thesis yang menjadi referensi.
-            parentColumns = ["id"],  // Kolom "id" pada tabel Thesis menjadi kolom induk (parent).
-            childColumns = ["thesis_id"],  // Kolom "thesis_id" pada tabel Task menjadi kolom anak (child).
-            onDelete = ForeignKey.CASCADE,  // Jika entitas Thesis dihapus, maka entitas Task yang terkait juga akan dihapus.
-            onUpdate = ForeignKey.CASCADE  // Jika entitas Thesis diperbarui, maka entitas Task yang terkait juga akan diperbarui.
+@Entity(  // Menandai kelas ini sebagai entitas untuk Room Database
+    tableName = "homework",  // Nama tabel dalam database
+    foreignKeys = [  // Menambahkan foreign key untuk hubungan antar tabel
+        ForeignKey(
+            entity = Subject::class,  // Entitas yang dijadikan referensi (Subject)
+            parentColumns = ["id"],  // Kolom di entitas Subject yang digunakan sebagai referensi
+            childColumns = ["subject_id"],  // Kolom di entitas Homework yang merujuk ke kolom parent
+            onDelete = ForeignKey.CASCADE,  // Hapus data di Homework jika data Subject terkait dihapus
+            onUpdate = ForeignKey.CASCADE  // Perbarui data di Homework jika data Subject terkait diperbarui
         )
     ]
 )
+data class Task(  // Mendefinisikan data class untuk entitas Homework
+    @PrimaryKey(autoGenerate = true)  // Menandai kolom id sebagai primary key yang otomatis di-generate
+    val id: Int = 0,
 
-@Serializable  // Menandakan bahwa kelas Task bisa diserialisasi menggunakan Kotlin Serialization.
-data class Task(
-    @PrimaryKey(autoGenerate = true)  // Menandakan bahwa "id" adalah primary key dan nilainya akan otomatis di-generate oleh Room.
-    val id: Int = 0,  // ID unik untuk setiap task, defaultnya adalah 0.
+    val title: String,  // Judul tugas rumah
 
-    @SerialName("thesis_id")  // Nama properti pada file JSON atau database.
-    @ColumnInfo(name = "thesis_id")  // Nama kolom pada database yang berisi foreign key dari tabel Thesis.
-    val thesisId: Int,  // ID dari thesis yang terkait dengan task ini.
+    @ColumnInfo(name = "due_date")  // Menandakan bahwa kolom ini berhubungan dengan due_date
+    val dueDate: Date,  // Tanggal batas tugas rumah
 
-    val name: String,  // Nama dari task yang diberikan.
+    val reminder: Time?,  // Waktu pengingat (opsional)
 
-    @SerialName("is_completed")  // Nama properti dalam JSON atau database yang menyatakan status selesai atau belum.
-    @ColumnInfo(name = "is_completed")  // Nama kolom pada database untuk status penyelesaian task.
-    val isCompleted: Boolean = false,  // Status apakah task sudah selesai atau belum, defaultnya false.
+    val deadline: DeadlineTime?,  // Waktu batas (opsional)
 
-    @SerialName("due_date")  // Nama properti dalam JSON atau database yang menunjukkan tanggal jatuh tempo.
-    @Serializable(with = DateSerializer::class)  // Menyatakan bahwa properti dueDate akan diserialisasi/dideserialisasi menggunakan `DateSerializer`.
-    @ColumnInfo(name = "due_date")  // Nama kolom pada database yang menyimpan tanggal jatuh tempo.
-    val dueDate: Date  // Tanggal jatuh tempo task.
+    @ColumnInfo(name = "subject_id")  // Menandakan bahwa kolom ini berhubungan dengan subject_id
+    val subjectId: Int,  // ID subjek yang terkait dengan tugas rumah
+
+    val completed: Boolean = false,  // Status apakah tugas rumah sudah diselesaikan
+
+    val attachments: List<Attachment>,  // Daftar lampiran terkait tugas rumah
+
+    val description: String,  // Deskripsi tugas rumah
+
+    val score: Int? = null  // Nilai tugas rumah (opsional)
 )
-
-
-object DateSerializer : KSerializer<Date> {
-    override val descriptor: SerialDescriptor
-        get() = PrimitiveSerialDescriptor("Date", PrimitiveKind.LONG)  // Deskripsi tipe data, menyatakan bahwa tipe data yang diserialisasi adalah tipe primitif LONG (milliseconds).
-
-    override fun serialize(encoder: Encoder, value: Date) {
-        encoder.encodeLong(value.time)  // Mengonversi objek Date menjadi long (waktu dalam milidetik sejak epoch).
-    }
-
-    override fun deserialize(decoder: Decoder): Date {
-        return Date(decoder.decodeLong())  // Mengonversi kembali nilai long menjadi objek Date.
-    }
-}

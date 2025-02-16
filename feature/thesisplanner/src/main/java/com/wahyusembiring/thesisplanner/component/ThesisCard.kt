@@ -49,8 +49,8 @@ internal fun ThesisCard(
         Body(
             title = thesis.thesis.title, // Judul tesis
             finishedTasks = Pair( // Menampilkan jumlah task selesai dan total task
-                thesis.tasks.filter { it.isCompleted }.size, // Jumlah task yang selesai
-                thesis.tasks.size // Total jumlah task
+                thesis.taskTheses.filter { it.isCompleted }.size, // Jumlah task yang selesai
+                thesis.taskTheses.size // Total jumlah task
             ),
             articles = thesis.thesis.articles.size // Jumlah artikel terkait tesis
         )

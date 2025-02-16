@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -20,7 +22,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
+import com.wahyusembiring.data.model.Time
 import com.wahyusembiring.reminder.R
+import com.wahyusembiring.ui.component.button.AddAgendaReminderButton
 import com.wahyusembiring.ui.component.button.AddDateButton
 import com.wahyusembiring.ui.component.button.AddReminderButton
 import com.wahyusembiring.ui.component.modalbottomsheet.component.NavigationAndActionButtonHeader
@@ -93,7 +97,7 @@ private fun CreateReminderScreen(
                 onActionButtonClicked = {
                     onUIEvent(AddAgendaScreenUIEvent.OnSaveButtonClicked)
                 },
-                navigationButtonDescription = stringResource(R.string.close_create_reminder_sheet)
+                navigationButtonDescription = stringResource(R.string.close_create_agenda_sheet)
             )
             Column(
                 modifier = Modifier.padding(MaterialTheme.spacing.Medium) // Padding dengan tema material.
@@ -124,13 +128,18 @@ private fun CreateReminderScreen(
                         onUIEvent(AddAgendaScreenUIEvent.OnDurationTimePicker)
                     }
                 )
-                AddReminderButton(
+
+
+                AddAgendaReminderButton(
                     time = state.time, // Waktu pengingat dari state.
+                    startTime = state.spanTime?.startTime ?: Time(0, 0), // Gunakan startTime jika spanTime tidak null, atau Time(0, 0) sebagai default.
                     onClicked = {
                         Log.d("ButtonClick", "AddReminderButton clicked")
                         onUIEvent(AddAgendaScreenUIEvent.OnTimePickerButtonClick)
                     }
                 )
+
+
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     label = {
@@ -141,6 +150,20 @@ private fun CreateReminderScreen(
                         onUIEvent(AddAgendaScreenUIEvent.OnReminderDescriptionChanged(it))
                     },
                 )
+
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = MaterialTheme.spacing.Small),
+                    onClick = { onUIEvent(AddAgendaScreenUIEvent.OnSendEmailButtonClicked) }
+                ) {
+                    Icon(
+                        painter = painterResource(id = com.wahyusembiring.ui.R.drawable.ic_title),
+                        contentDescription = "Send Email",
+                        modifier = Modifier.padding(end = MaterialTheme.spacing.Small)
+                    )
+                    Text(text = "Send via Email")
+                }
             }
         }
     }
@@ -187,7 +210,7 @@ private fun CreateReminderScreen(
     if (state.showSaveConfirmationDialog) {
         // Menampilkan dialog konfirmasi sebelum menyimpan agenda jika state.showSaveConfirmationDialog bernilai true.
         ConfirmationAlertDialog(
-            title = stringResource(R.string.save_reminder), // Judul dialog konfirmasi.
+            title = stringResource(R.string.save_agenda), // Judul dialog konfirmasi.
             message = if (state.isEditMode) { // Pesan yang ditampilkan tergantung pada mode edit.
                 stringResource(R.string.are_you_sure_you_want_to_save_this_agenda)
             } else {
@@ -212,7 +235,7 @@ private fun CreateReminderScreen(
         // Menampilkan dialog sukses setelah agenda berhasil disimpan.
         InformationAlertDialog(
             title = stringResource(R.string.success), // Judul dialog sukses.
-            message = stringResource(R.string.reminder_saved), // Pesan yang ditampilkan adalah "reminder saved".
+            message = stringResource(R.string.agenda_saved), // Pesan yang ditampilkan adalah "agenda saved".
             buttonText = stringResource(R.string.ok), // Teks tombol untuk menutup dialog.
             onButtonClicked = {
                 onUIEvent(AddAgendaScreenUIEvent.OnReminderSavedDialogDismiss) // Menutup dialog setelah tombol diklik.

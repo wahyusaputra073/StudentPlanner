@@ -2,7 +2,7 @@ package com.wahyusembiring.overview.util
 
 import com.wahyusembiring.data.model.ExamWithSubject
 import com.wahyusembiring.data.model.HomeworkWithSubject
-import com.wahyusembiring.data.model.entity.Reminder
+import com.wahyusembiring.data.model.entity.Agenda
 import com.wahyusembiring.datetime.Moment
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
@@ -16,7 +16,7 @@ infix fun List<Any>.inside(range: ClosedRange<Duration>): List<Any> {
         when (event) { // Mengecek tipe event
             is ExamWithSubject -> event.exam.date.time in startDay..endDay // Jika event adalah ujian, cek apakah waktu ujian dalam rentang
             is HomeworkWithSubject -> event.homework.dueDate.time in startDay..endDay // Jika event adalah tugas, cek apakah waktu deadline dalam rentang
-            is Reminder -> event.date.time in startDay..endDay // Jika event adalah pengingat, cek apakah waktu pengingat dalam rentang
+            is Agenda -> event.date.time in startDay..endDay // Jika event adalah pengingat, cek apakah waktu pengingat dalam rentang
             else -> throw IllegalArgumentException("Invalid event type") // Jika tipe event tidak valid, lemparkan exception
         }
     }

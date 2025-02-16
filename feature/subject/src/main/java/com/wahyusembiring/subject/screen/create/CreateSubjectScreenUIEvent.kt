@@ -11,10 +11,13 @@ sealed class CreateSubjectScreenUIEvent {  // Mendefinisikan sealed class untuk 
     data object OnPickColorButtonClicked : CreateSubjectScreenUIEvent()  // Event ketika tombol pilih warna diklik
     data class OnColorPicked(val color: Color) : CreateSubjectScreenUIEvent()  // Event ketika warna dipilih
     data object OnColorPickerDismiss : CreateSubjectScreenUIEvent()  // Event ketika dialog pemilih warna dibatalkan
-    data class OnLecturerSelected(val lecturer: Lecturer) : CreateSubjectScreenUIEvent()  // Event ketika pengajar dipilih
+//    data class OnLecturerSelected(val lecturer: Lecturer) : CreateSubjectScreenUIEvent()  // Event ketika pengajar dipilih
     data object OnSaveConfirmationDialogConfirm : CreateSubjectScreenUIEvent()  // Event ketika konfirmasi simpan diklik
     data object OnSaveConfirmationDialogDismiss : CreateSubjectScreenUIEvent()  // Event ketika dialog konfirmasi simpan dibatalkan
     data object OnSubjectSavedDialogDismiss : CreateSubjectScreenUIEvent()  // Event ketika dialog mata kuliah tersimpan dibatalkan
     data object OnErrorDialogDismiss : CreateSubjectScreenUIEvent()  // Event ketika dialog error dibatalkan
-}
 
+    data class OnPrimaryLecturerSelected(val lecturer: Lecturer) : CreateSubjectScreenUIEvent()
+    data class OnSecondaryLecturerSelected(val lecturer: Lecturer) : CreateSubjectScreenUIEvent()
+    data class OnLecturerRemoved(val isSecondary: Boolean) : CreateSubjectScreenUIEvent()
+}

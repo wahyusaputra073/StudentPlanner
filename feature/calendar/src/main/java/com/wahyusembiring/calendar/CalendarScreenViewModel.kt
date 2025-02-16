@@ -4,9 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wahyusembiring.data.model.ExamWithSubject
 import com.wahyusembiring.data.model.HomeworkWithSubject
-import com.wahyusembiring.data.model.entity.Reminder
+import com.wahyusembiring.data.model.entity.Agenda
 import com.wahyusembiring.data.repository.EventRepository
-import com.wahyusembiring.data.repository.ExamRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -58,7 +57,7 @@ class CalendarScreenViewModel @Inject constructor( // ViewModel untuk layar kale
                 is ExamWithSubject -> {
                     eventRepository.deleteExam(event.exam) // Menghapus ujian
                 }
-                is Reminder -> {
+                is Agenda -> {
                     eventRepository.deleteReminder(event) // Menghapus pengingat
                 }
             }
@@ -75,7 +74,7 @@ class CalendarScreenViewModel @Inject constructor( // ViewModel untuk layar kale
                 is ExamWithSubject -> {
                     eventRepository.updateExam(event.exam.copy()) // Memperbarui ujian (tidak ada perubahan spesifik dalam kode ini)
                 }
-                is Reminder -> {
+                is Agenda -> {
                     eventRepository.updateReminder(event.copy(completed = checked)) // Memperbarui status selesai pengingat
                 }
             }
@@ -91,7 +90,7 @@ class CalendarScreenViewModel @Inject constructor( // ViewModel untuk layar kale
             is ExamWithSubject -> {
                 _navigationEvent.trySend(CalendarScreenNavigationEvent.NavigateToExamDetail(event.exam.id)) // Navigasi ke detail ujian
             }
-            is Reminder -> {
+            is Agenda -> {
                 _navigationEvent.trySend(CalendarScreenNavigationEvent.NavigateToReminderDetail(event.id)) // Navigasi ke detail pengingat
             }
         }

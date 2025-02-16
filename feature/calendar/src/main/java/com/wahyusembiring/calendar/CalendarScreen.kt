@@ -42,7 +42,7 @@ import com.wahyusembiring.common.navigation.Screen
 import com.wahyusembiring.common.util.CollectAsOneTimeEvent
 import com.wahyusembiring.data.model.ExamWithSubject
 import com.wahyusembiring.data.model.HomeworkWithSubject
-import com.wahyusembiring.data.model.entity.Reminder
+import com.wahyusembiring.data.model.entity.Agenda
 import com.wahyusembiring.ui.component.eventcard.EventCard
 import com.wahyusembiring.ui.component.topappbar.TopAppBar
 import com.wahyusembiring.ui.theme.spacing
@@ -228,7 +228,7 @@ private fun BoxScope.EventIndicator(
     val eventInThisDay = events.getEventsByDate(dayState.date) // Mendapatkan event pada tanggal tertentu
     val isThereAnyExam = eventInThisDay.any { it is ExamWithSubject } // Cek apakah ada ujian pada hari ini
     val isThereAnyHomework = eventInThisDay.any { it is HomeworkWithSubject } // Cek apakah ada tugas pada hari ini
-    val isThereAnyReminder = eventInThisDay.any { it is Reminder } // Cek apakah ada pengingat pada hari ini
+    val isThereAnyReminder = eventInThisDay.any { it is Agenda } // Cek apakah ada pengingat pada hari ini
 
     Row(
         modifier = Modifier

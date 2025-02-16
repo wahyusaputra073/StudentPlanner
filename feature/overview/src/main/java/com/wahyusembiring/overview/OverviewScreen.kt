@@ -29,7 +29,7 @@ import androidx.navigation.NavHostController
 import com.wahyusembiring.common.navigation.Screen
 import com.wahyusembiring.data.model.ExamWithSubject
 import com.wahyusembiring.data.model.HomeworkWithSubject
-import com.wahyusembiring.data.model.entity.Reminder
+import com.wahyusembiring.data.model.entity.Agenda
 import com.wahyusembiring.ui.component.eventcard.EventCard
 import com.wahyusembiring.ui.component.scoredialog.ScoreDialog
 import com.wahyusembiring.ui.component.floatingactionbutton.HomeworkExamAndReminderFAB
@@ -43,7 +43,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
-import kotlinx.coroutines.launch
 
 
 @Composable
@@ -76,7 +75,6 @@ fun OverviewScreen(
         }
     )
 }
-
 
 
 @Composable
@@ -168,7 +166,7 @@ private fun OverviewScreenMainContent(
                             onNavigateTo(Screen.CreateExam(event.exam.id)) // Navigasi ke layar pembuatan ujian
                         }
 
-                        is Reminder -> {
+                        is Agenda -> {
                             onNavigateTo(Screen.CreateReminder(event.id)) // Navigasi ke layar pembuatan reminder
                         }
 

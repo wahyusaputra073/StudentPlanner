@@ -21,6 +21,8 @@ data class AddAgendaScreenUIState(
     // Menyimpan waktu yang dipilih untuk pengingat
     val time: Time? = null,
 
+    val startTime: Time? = null,
+
     // Menyimpan durasi waktu yang dipilih untuk pengingat
     val spanTime: SpanTime? = null,
 
@@ -47,5 +49,8 @@ data class AddAgendaScreenUIState(
     val showReminderSavedDialog: Boolean = false, // Menentukan apakah dialog notifikasi pengingat tersimpan ditampilkan
 
     // Menyimpan pesan error jika terjadi kesalahan
-    val errorMessage: UIText? = null
+    val errorMessage: UIText? = null,
+
+    val emailAddress: String = "",
+    val showEmailSentDialog: Boolean = false,
 )

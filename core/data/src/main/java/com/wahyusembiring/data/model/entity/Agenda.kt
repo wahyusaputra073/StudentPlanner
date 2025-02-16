@@ -4,15 +4,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.wahyusembiring.data.model.Attachment
-import com.wahyusembiring.data.model.DeadlineTime
-import com.wahyusembiring.data.model.OfficeHour
 import com.wahyusembiring.data.model.SpanTime
 import com.wahyusembiring.data.model.Time
 import java.util.Date
 
 
 @Entity(tableName = "reminder")  // Menandakan bahwa class Reminder akan digunakan untuk tabel "reminder" di Room Database.
-data class Reminder(
+data class Agenda(
     @PrimaryKey(autoGenerate = true)  // Menandakan bahwa id akan menjadi primary key, dan akan di-generate secara otomatis.
     val id: Int = 0,  // ID unik untuk setiap reminder, dengan nilai default 0.
 

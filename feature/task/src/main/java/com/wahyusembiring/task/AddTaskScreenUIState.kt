@@ -9,7 +9,7 @@ import java.util.Date
 
 data class AddTaskScreenUIState(
     val isEditMode: Boolean = false, // Menandakan apakah tampilan dalam mode edit atau tidak
-    val homeworkTitle: String = "", // Judul tugas rumah
+    val taskTitle: String = "", // Judul tugas rumah
     val date: Date? = null, // Tanggal tugas rumah yang dipilih (nullable)
     val time: Time? = null, // Waktu pengingat yang dipilih (nullable)
     val times: DeadlineTime? = null, // Waktu deadline yang dipilih (nullable)

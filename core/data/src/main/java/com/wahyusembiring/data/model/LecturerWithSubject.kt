@@ -6,13 +6,17 @@ import com.wahyusembiring.data.model.entity.Lecturer
 import com.wahyusembiring.data.model.entity.Subject
 
 data class LecturerWithSubject(
-    @Embedded val lecturer: Lecturer,  // Menyematkan data dosen dalam objek ini.
+    @Embedded val lecturer: Lecturer,
 
     @Relation(
-        parentColumn = "id",  // Kolom id di tabel Lecturer sebagai referensi.
-        entityColumn = "lecturer_id"  // Kolom lecturer_id di tabel Subject sebagai foreign key.
+        parentColumn = "id",
+        entityColumn = "lecturer_id"
     )
-    val subjects: List<Subject>  // Menyimpan daftar mata kuliah yang diajarkan oleh dosen.
+    val primarySubjects: List<Subject>,
+
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "secondary_lecturer_id"
+    )
+    val secondarySubjects: List<Subject>
 )
-
-
